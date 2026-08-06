@@ -20,8 +20,8 @@ jobs:
     outputs:
       tag: ${{ steps.version.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22.19.0
       - id: version
@@ -58,10 +58,10 @@ jobs:
             runner: windows-2022
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22.19.0
           cache: npm
@@ -70,7 +70,7 @@ jobs:
         run: node scripts/build-native.mjs --release --build-dir native/build-release
       - name: Package and smoke-test release runtime
         run: node scripts/package-runtime.mjs --build-dir native/build-release --output-dir artifacts
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: runtime-${{ matrix.platform }}
           path: artifacts/*
@@ -82,11 +82,11 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22.19.0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           pattern: runtime-*
           path: artifacts
