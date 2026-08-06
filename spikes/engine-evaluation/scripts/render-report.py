@@ -16,16 +16,17 @@ def main() -> None:
     for path in sorted(args.results.glob("*.json")):
         if path.name == "summary.json": continue
         rows.append(json.loads(path.read_text()))
-    lines = ["# Engine Evaluation Summary", "", f"Runs: {len(rows)}", "", "| Engine | Audio | Status | WER | CER | TTFH ms | Stop→final ms | Revision ratio |", "|---|---|---|---:|---:|---:|---:|---:|"]
+    lines = ["# Engine Evaluation Summary", "", f"Runs: {len(rows)}", "", "| Engine | Audio | Status | WER | CER | RTF | TTFH ms | Stop→final ms | Revision ratio |", "|---|---|---|---:|---:|---:|---:|---:|---:|"]
     for row in rows:
         metrics = row.get("metrics", {})
         accuracy = metrics.get("accuracy", {})
-        lines.append("| {engine} | {audio} | {status} | {wer} | {cer} | {ttfh} | {stop} | {revision} |".format(
+        lines.append("| {engine} | {audio} | {status} | {wer} | {cer} | {rtf} | {ttfh} | {stop} | {revision} |".format(
             engine=row.get("engine", {}).get("name", "?"),
             audio=row.get("audio", {}).get("id", "?"),
             status=row.get("status", "?"),
             wer=f"{accuracy.get('wer', 0):.3f}" if "wer" in accuracy else "—",
             cer=f"{accuracy.get('cer', 0):.3f}" if "cer" in accuracy else "—",
+            rtf=f"{metrics.get('realtimeFactor', 0):.3f}" if metrics.get('realtimeFactor') is not None else "—",
             ttfh=f"{metrics.get('ttfhMs', 0):.1f}" if metrics.get('ttfhMs') is not None else "—",
             stop=f"{metrics.get('stopToFinalMs', 0):.1f}" if metrics.get('stopToFinalMs') is not None else "—",
             revision=f"{metrics.get('revisionRatio', 0):.3f}",

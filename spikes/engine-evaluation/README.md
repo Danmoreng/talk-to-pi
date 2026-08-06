@@ -6,7 +6,7 @@ runtime:
 
 - NVIDIA NeMo-Speech.cpp at `2e12e2def8a98ed06666f7ee3ca94e7193e04be4`;
 - parakeet.cpp at the locally patched revision
-  `5fd500fad54ef86254d675c494cbb3a5eb821df4`.
+  `1764d8c6951473dbd9ba62064e876b68d5005eb0`.
 
 Large model files, normalized audio, results, and reports are intentionally
 ignored. The current checkout uses symlinks to the already verified local
@@ -23,7 +23,7 @@ cmake --build --preset cpu-asr -j$(nproc)
 cd ../../../..
 ```
 
-Common runner:
+Common CPU runner:
 
 ```bash
 cmake -S spikes/engine-evaluation \
@@ -32,6 +32,19 @@ cmake -S spikes/engine-evaluation \
 cmake --build spikes/engine-evaluation/build -j$(nproc)
 ctest --test-dir spikes/engine-evaluation/build --output-on-failure
 ```
+
+Optional NVIDIA CUDA build:
+
+```bash
+cmake -S spikes/engine-evaluation \
+  -B spikes/engine-evaluation/build-cuda \
+  -G Ninja -DCMAKE_BUILD_TYPE=Release \
+  -DTALK_TO_PI_ENABLE_CUDA=ON
+cmake --build spikes/engine-evaluation/build-cuda -j$(nproc)
+```
+
+Use `talk-to-pi-parakeet-eval` for the CUDA run. The combined runner keeps
+NeMo's CPU `libggml` loaded and must not be used for a parakeet CUDA process.
 
 ## Model and compatibility checks
 
@@ -45,6 +58,10 @@ smoke runs use identical 16 kHz mono PCM:
 ```bash
 python3 spikes/engine-evaluation/scripts/run-benchmark.py \
   --engine both --pace unpaced --threads 4 --repeat 1
+python3 spikes/engine-evaluation/scripts/run-benchmark.py \
+  --engine parakeet \
+  --eval-binary spikes/engine-evaluation/build-cuda/talk-to-pi-parakeet-eval \
+  --pace unpaced --threads 4 --repeat 1
 python3 spikes/engine-evaluation/scripts/render-report.py \
   --results spikes/engine-evaluation/results \
   --output spikes/engine-evaluation/reports/smoke-summary.md
@@ -53,7 +70,14 @@ python3 spikes/engine-evaluation/scripts/render-report.py \
 The current smoke corpus is the existing public LibriSpeech fixture from
 parakeet.cpp. It is harness validation only, not the German product decision
 corpus. The decision corpus requires references and recordings from the actual
-primary user.
+primary user. For RTF, use an unpaced run: wall time after stream start divided
+by audio duration; values below one are faster than real time. Model-load time
+is reported separately because production loads the model before recording.
+
+On the local RTX 5080, the experimental CUDA parakeet runner measured RTF
+`0.049`, TTFH `~92 ms`, and stop-to-final `~9 ms` after initialization. The
+first process paid approximately `2.9 s` for CUDA/model initialization. This is
+an exploratory result, not yet a production default.
 
 ## Conversion provenance
 

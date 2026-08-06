@@ -6,8 +6,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(TALK_TO_PI_BUILD_TESTS "Build native protocol tests" ON)
+option(TALK_TO_PI_ENABLE_CUDA "Enable the CUDA backend for local NVIDIA GPU builds" OFF)
 
 set(PARAKEET_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(PARAKEET_GGML_CUDA ${TALK_TO_PI_ENABLE_CUDA} CACHE BOOL "" FORCE)
 set(PARAKEET_BUILD_CLI OFF CACHE BOOL "" FORCE)
 set(PARAKEET_BUILD_SERVER OFF CACHE BOOL "" FORCE)
 set(PARAKEET_SHARED OFF CACHE BOOL "" FORCE)
@@ -37,6 +39,9 @@ target_include_directories(talk-to-pi-runtime PRIVATE
   vendor/miniaudio
 )
 target_link_libraries(talk-to-pi-runtime PRIVATE parakeet miniaudio Threads::Threads ${CMAKE_DL_LIBS} m)
+target_compile_definitions(talk-to-pi-runtime PRIVATE
+  TALK_TO_PI_ENABLE_CUDA=$<BOOL:${TALK_TO_PI_ENABLE_CUDA}>
+)
 if(TALK_TO_PI_BUILD_TESTS)
   enable_testing()
   add_executable(jsonl_protocol_test tests/jsonl_protocol_test.cpp src/jsonl_protocol.cpp)

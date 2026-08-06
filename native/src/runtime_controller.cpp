@@ -18,7 +18,7 @@ void RuntimeController::emit_hello() {
         {"runtimeVersion", "0.1.0"},
         {"protocolVersions", {kProtocolVersion}},
         {"parakeetAbi", engine_.abi_version()},
-        {"platform", "linux-x64-cpu"},
+        {"platform", TALK_TO_PI_ENABLE_CUDA ? "linux-x64-cuda" : "linux-x64-cpu"},
     });
 }
 

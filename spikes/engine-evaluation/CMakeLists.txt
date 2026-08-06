@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+option(TALK_TO_PI_ENABLE_CUDA "Enable the CUDA backend for parakeet evaluation" OFF)
+
 set(NEMO_SPEECH_BUILD_DIR
     "${CMAKE_CURRENT_SOURCE_DIR}/third_party/NeMo-Speech.cpp/build/cpu-asr"
     CACHE PATH "Existing NeMo-Speech.cpp cpu-asr build directory")
@@ -21,6 +23,7 @@ set(PARAKEET_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(PARAKEET_BUILD_CLI OFF CACHE BOOL "" FORCE)
 set(PARAKEET_BUILD_SERVER OFF CACHE BOOL "" FORCE)
 set(PARAKEET_SHARED OFF CACHE BOOL "" FORCE)
+set(PARAKEET_GGML_CUDA ${TALK_TO_PI_ENABLE_CUDA} CACHE BOOL "" FORCE)
 set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 set(GGML_LLAMAFILE OFF CACHE BOOL "" FORCE)
 add_subdirectory(../../native/vendor/parakeet.cpp parakeet-build EXCLUDE_FROM_ALL)
@@ -56,6 +59,28 @@ target_link_libraries(talk-to-pi-engine-eval PRIVATE
 set_target_properties(talk-to-pi-engine-eval PROPERTIES
     BUILD_RPATH "${NEMO_SPEECH_BIN_DIR}"
     INSTALL_RPATH "${NEMO_SPEECH_BIN_DIR}"
+)
+
+# A standalone parakeet runner is required for CUDA benchmarking. Keeping the
+# NeMo shared library out of this process avoids its separate ggml shared
+# library interposing on the CUDA-enabled ggml build.
+add_executable(talk-to-pi-parakeet-eval
+    native/common/evaluation_engine.cpp
+    native/common/pcm_source.cpp
+    native/parakeet/parakeet_engine.cpp
+    native/runner/main.cpp
+)
+target_include_directories(talk-to-pi-parakeet-eval PRIVATE
+    native/common
+    native/parakeet
+    ../../native/vendor/nlohmann-json/single_include
+    ../../native/vendor/parakeet.cpp/include
+)
+target_compile_definitions(talk-to-pi-parakeet-eval PRIVATE TALK_TO_PI_PARAKEET_ONLY=1)
+target_link_libraries(talk-to-pi-parakeet-eval PRIVATE parakeet)
+set_target_properties(talk-to-pi-parakeet-eval PROPERTIES
+    BUILD_RPATH "${CMAKE_BINARY_DIR}/parakeet-build/third_party/ggml/src;${CMAKE_BINARY_DIR}/parakeet-build/third_party/ggml/src/ggml-cuda"
+    INSTALL_RPATH "${CMAKE_BINARY_DIR}/parakeet-build/third_party/ggml/src;${CMAKE_BINARY_DIR}/parakeet-build/third_party/ggml/src/ggml-cuda"
 )
 
 include(CTest)

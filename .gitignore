@@ -5,6 +5,7 @@ coverage/
 
 build/
 native/build/
+native/build-cuda/
 
 *.log
 *.partial

@@ -24,15 +24,19 @@ scoring = load("scoring", "score-transcripts.py")
 class MetricsTest(unittest.TestCase):
     def test_streaming_metrics_distinguish_revisions(self):
         events = [
+            {"event": "stream_started", "emittedAtMs": 50},
             {"event": "hypothesis", "text": "hello", "emittedAtMs": 100, "engineStable": False},
             {"event": "hypothesis", "text": "hello world", "emittedAtMs": 200, "engineStable": True},
-            {"event": "final_result", "text": "hello world", "finishLatencyMs": 40},
+            {"event": "final_result", "text": "hello world", "finishLatencyMs": 40, "audioDurationMs": 1000},
+            {"event": "process_exited", "emittedAtMs": 250},
         ]
         result = analysis.analyze(events)
-        self.assertEqual(result["ttfhMs"], 100)
-        self.assertEqual(result["firstStableWordMs"], 200)
+        self.assertEqual(result["ttfhMs"], 50)
+        self.assertEqual(result["firstStableWordMs"], 150)
         self.assertEqual(result["revisionCount"], 1)
         self.assertEqual(result["stopToFinalMs"], 40)
+        self.assertEqual(result["streamElapsedMs"], 200)
+        self.assertEqual(result["realtimeFactor"], 0.2)
 
     def test_scoring_is_zero_for_matching_transcript(self):
         result = scoring.score("Hello, world.", "hello world")

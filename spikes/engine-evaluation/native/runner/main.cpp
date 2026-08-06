@@ -1,5 +1,7 @@
 #include "evaluation_engine.hpp"
+#ifndef TALK_TO_PI_PARAKEET_ONLY
 #include "nemo_engine.hpp"
+#endif
 #include "parakeet_engine.hpp"
 #include "pcm_source.hpp"
 
@@ -21,7 +23,9 @@ using talk_to_pi::evaluation::EvaluationEngine;
 using talk_to_pi::evaluation::EvaluationEngineConfig;
 using talk_to_pi::evaluation::EvaluationHypothesis;
 using talk_to_pi::evaluation::EvaluationSpeechEvent;
+#ifndef TALK_TO_PI_PARAKEET_ONLY
 using talk_to_pi::evaluation::NemoSpeechEngine;
+#endif
 using talk_to_pi::evaluation::ParakeetEngine;
 using talk_to_pi::evaluation::PcmAudio;
 using talk_to_pi::evaluation::load_wav;
@@ -102,8 +106,15 @@ public:
         emit({{"event", "audio_loaded"}, {"sampleRate", audio.sample_rate},
               {"samples", audio.samples.size()}, {"durationMs", audio.duration_ms()}});
 
-        if (options_.engine == "nemo") engine_ = std::make_unique<NemoSpeechEngine>();
-        else engine_ = std::make_unique<ParakeetEngine>();
+        if (options_.engine == "parakeet") {
+            engine_ = std::make_unique<ParakeetEngine>();
+#ifndef TALK_TO_PI_PARAKEET_ONLY
+        } else if (options_.engine == "nemo") {
+            engine_ = std::make_unique<NemoSpeechEngine>();
+#endif
+        } else {
+            throw std::runtime_error("this runner was built without the requested engine");
+        }
 
         EvaluationEngineConfig config;
         config.model_path = options_.model;

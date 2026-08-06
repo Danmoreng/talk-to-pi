@@ -19,7 +19,7 @@ nemoSpeechCpp:
   ggmlRevision: c03b4e2bcece5134827881af90242086daf75be5
 parakeetCpp:
   repository: https://github.com/mudler/parakeet.cpp
-  revision: 5fd500fad54ef86254d675c494cbb3a5eb821df4
+  revision: 1764d8c6951473dbd9ba62064e876b68d5005eb0
   upstreamBaseRevision: 1bfbebfaaf493866f49597cd3b7901959d395c60
   ggmlRevision: e705c5fed490514458bdd2eaddc43bd098fcce9b
   patch: streaming language-tag filtering

@@ -39,13 +39,27 @@ git submodule update --init --recursive
 node scripts/build-native.mjs
 ```
 
-Build and run the local development path with Pi:
+Build and run the local CPU development path with Pi:
 
 ```bash
 npm run build
 npm run native:build
 npm run local:pi
 ```
+
+An experimental CUDA runtime can be built separately on an NVIDIA Linux host:
+
+```bash
+cmake -S native -B native/build-cuda -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release -DTALK_TO_PI_ENABLE_CUDA=ON
+cmake --build native/build-cuda -j"$(nproc)"
+TALK_TO_PI_RUNTIME_PATH="$PWD/native/build-cuda/talk-to-pi-runtime" \
+TALK_TO_PI_MODEL_PATH="$HOME/.local/share/talk-to-pi/models/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf" \
+npm run local:pi
+```
+
+The default remains CPU; the CUDA build loads the model on the first available
+GPU and falls back only where the backend lacks an operation.
 
 `scripts/local-pi.sh` uses the locally generated parakeet.cpp GGUF at
 `$XDG_DATA_HOME/talk-to-pi/models/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf`

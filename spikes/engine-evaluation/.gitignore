@@ -12,5 +12,6 @@ corpus/normalized/*
 corpus/references/*
 !corpus/references/.gitignore
 build/
+build-cuda/
 __pycache__/
 *.pyc

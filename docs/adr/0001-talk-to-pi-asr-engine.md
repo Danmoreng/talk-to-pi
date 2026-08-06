@@ -12,7 +12,7 @@ NVIDIA NeMo-Speech.cpp using the same pinned NVIDIA Nemotron source revision
 ## Implemented evidence
 
 - NeMo-Speech.cpp `2e12e2def8a98ed06666f7ee3ca94e7193e04be4` builds on CPU.
-- parakeet.cpp `5fd500fad54ef86254d675c494cbb3a5eb821df4` builds on CPU.
+- parakeet.cpp `1764d8c6951473dbd9ba62064e876b68d5005eb0` builds on CPU and CUDA.
 - NVIDIA's official Q8_0 model loads only in NeMo-Speech.cpp.
 - The locally generated parakeet Q8_0 model loads only in parakeet.cpp.
 - Cross-engine model loading fails cleanly in both directions.
@@ -34,6 +34,12 @@ intervals.
 | Smoke WER               |                  0.000 |                  0.000 |
 
 These values are harness smoke observations, not release claims.
+
+An additional exploratory parakeet CUDA run on the local RTX 5080 used the
+same Q8 model and four threads. After model initialization it measured RTF
+`0.049`, TTFH `~92 ms`, and stop-to-final `~9 ms`. The cold CUDA model load was
+`~2.9 s` on the first process. The CUDA build also required an explicit backend
+shutdown fix to avoid a driver-teardown abort; it remains experimental.
 
 ## Decision
 
