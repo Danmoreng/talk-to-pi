@@ -26,7 +26,7 @@ The extension communicates with `talk-to-pi-runtime` through UTF-8 JSON Lines. C
 {"v":1,"type":"shutdown","id":"req-5"}
 ```
 
-`start` consumes 16 kHz mono float PCM from the default microphone. `language` is an explicit locale or `auto`. Talk-to-Pi defaults to `auto`; users can set `TALK_TO_PI_LANGUAGE` or override one recording with `/talk --lang <locale>`.
+`start` consumes 16 kHz mono float PCM from the default microphone. `language` is an explicit locale or `auto`. Talk-to-Pi defaults to `auto`; users can set `TALK_TO_PI_LANGUAGE` or override one recording with `/talk --lang <locale>`. In the interactive TUI, `Ctrl+R` invokes the same recording flow as `/talk`.
 
 ## Events and responses
 

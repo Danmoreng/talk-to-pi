@@ -4,11 +4,14 @@ Local, live Nemotron dictation for the Pi Coding Agent.
 
 > **Development status:** The local Linux x86_64 development path is usable. Release provisioning is still gated because the parakeet.cpp GGUF has not yet been published as a project release asset.
 
-The planned user flow is:
+The user flow is:
 
 ```text
-/talk → speak → watch the local transcript → stop → edit in Pi's regular prompt editor → submit normally
+Ctrl+R or /talk → speak → watch the local transcript → stop → edit in Pi's regular prompt editor → submit normally
 ```
+
+Talk-to-Pi registers `Ctrl+R` as a Pi extension shortcut. While the extension is
+loaded, it takes precedence over Pi's default session-rename shortcut.
 
 Talk-to-Pi is designed for Linux x86_64 CPU inference. Microphone audio is processed locally and is not uploaded by Talk-to-Pi. After the user submits the transcript, the text follows Pi's normal model-provider behavior.
 

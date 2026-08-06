@@ -4,6 +4,13 @@
 
 For local development, start Pi with `npm run local:pi`; it supplies the locally generated parakeet.cpp model and native runtime through explicit path overrides. Run `/talk-doctor` to inspect them. Release provisioning is not enabled until the model artifact has been published with a stable URL and checksum.
 
+## Tastenkürzel funktioniert nicht
+
+`Ctrl+R` ist als Extension-Shortcut registriert und startet denselben Ablauf wie
+`/talk`. Starte Pi mit der Talk-to-Pi-Extension, beispielsweise über
+`npm run local:pi`. Bei einer bereits laufenden Pi-Sitzung `/reload` ausführen
+oder Pi neu starten.
+
 ## Sprache ändern
 
 Die Standardsprache ist `auto`. Für alle Aufnahmen kann beispielsweise

@@ -9,7 +9,7 @@ export default function (pi: ExtensionAPI): void {
 	registerDoctorCommand(pi, runtime);
 
 	pi.on("session_start", async (_event, ctx) => {
-		ctx.ui.setStatus("talk-to-pi", "Talk-to-Pi: ready on /talk");
+		ctx.ui.setStatus("talk-to-pi", "Talk-to-Pi: ready on Ctrl+R or /talk");
 	});
 
 	pi.on("session_shutdown", async () => {

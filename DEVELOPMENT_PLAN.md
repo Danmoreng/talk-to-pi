@@ -1470,6 +1470,10 @@ Editing is deliberately outside this component. Once the overlay closes, Pi's re
 
 ### 17.4 Keyboard behavior
 
+Before recording, `Ctrl+R` invokes the same flow as `/talk` through Pi's extension
+shortcut registry. This intentionally takes precedence over Pi's default session
+rename binding while Talk-to-Pi is loaded.
+
 Recording:
 
 | Key | Action |
