@@ -2,7 +2,7 @@
 
 Local, live Nemotron dictation for the Pi Coding Agent.
 
-> **Development status:** The local Linux x86_64 development path is usable. Release provisioning is still gated because the parakeet.cpp GGUF has not yet been published as a project release asset.
+> **Development status:** The local Linux x86_64 NeMo-Speech.cpp development path is usable. Release provisioning is still gated until a verified native runtime archive is published.
 
 The user flow is:
 
@@ -20,7 +20,7 @@ Talk-to-Pi is designed for Linux x86_64 CPU inference. Microphone audio is proce
 Requirements:
 
 - Node.js `>=22.19.0`
-- CMake `>=3.24`
+- CMake `>=3.26`
 - C++17 compiler
 - Git with submodule support
 
@@ -54,22 +54,26 @@ cmake -S native -B native/build-cuda -G Ninja \
   -DCMAKE_BUILD_TYPE=Release -DTALK_TO_PI_ENABLE_CUDA=ON
 cmake --build native/build-cuda -j"$(nproc)"
 TALK_TO_PI_RUNTIME_PATH="$PWD/native/build-cuda/talk-to-pi-runtime" \
-TALK_TO_PI_MODEL_PATH="$HOME/.local/share/talk-to-pi/models/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf" \
 npm run local:pi
 ```
 
-The default remains CPU; the CUDA build loads the model on the first available
-GPU and falls back only where the backend lacks an operation.
+The default remains CPU. The NeMo runtime uses the official NVIDIA Q8_0 model
+from the pinned Hugging Face snapshot and selects the CUDA backend only in the
+CUDA build.
 
-`scripts/local-pi.sh` uses the locally generated parakeet.cpp GGUF at
-`$XDG_DATA_HOME/talk-to-pi/models/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf`
-and the native binary in `native/build`. Override either path with
-`TALK_TO_PI_MODEL_PATH` or `TALK_TO_PI_RUNTIME_PATH`. Then use `/talk`, press
-Enter to stop, and submit the resulting text through Pi normally. Existing prompt text is preserved and the new transcript is appended with a separating space. Language detection defaults to `auto`; set `TALK_TO_PI_LANGUAGE=de-DE` (or another supported locale) for a user-wide default, or use `/talk --lang en-US` for a one-off override.
+`scripts/local-pi.sh` uses the locally built NeMo runtime in `native/build`.
+The first `/talk` asks for permission to download the official model into the
+Hugging Face cache. Override the runtime with `TALK_TO_PI_RUNTIME_PATH` when
+needed; do not set the old parakeet model override. Then use `/talk`, press
+Enter to stop, and submit the resulting text through Pi normally. Existing
+prompt text is preserved and the new transcript is appended with a separating
+space. Language detection defaults to `auto`; set `TALK_TO_PI_LANGUAGE=de-DE`
+(or another supported locale) for a user-wide default, or use
+`/talk --lang en-US` for a one-off override.
 
 The `/talk-doctor` command reports the current asset and process state. Release
-provisioning remains gated until the generated model is published with a stable
-URL and checksum.
+provisioning remains gated until a stable, verified native runtime archive is
+published.
 
 ### Install for normal Pi sessions
 
@@ -80,13 +84,15 @@ runtime and model, install this repository as a global Pi package once:
 npm run install:local:pi
 ```
 
-The script runs `pi install` with the repository path and prints the two local
-runtime/model environment variables. Add those exports to your shell profile,
-then start Pi normally with `pi`; the extension will be loaded automatically in
-all sessions. Use `pi install -l "$PWD"` instead if it should be project-local.
+The script runs `pi install` with the repository path and prints the local
+runtime environment variable. Add that export to your shell profile, then
+start Pi normally with `pi`; the extension will be loaded automatically in all
+sessions. The first `/talk` asks permission to download the official NVIDIA
+model into the Hugging Face cache. Use `pi install -l "$PWD"` instead if it
+should be project-local.
 
 ## Scope
 
-The MVP uses one managed `parakeet.cpp` child process, miniaudio microphone capture, Nemotron 3.5 ASR Streaming 0.6B, and JSONL over stdin/stdout. It does not use a cloud speech API, a server, Python, an npm lifecycle script, telemetry, or automatic submission.
+The MVP uses one managed `NeMo-Speech.cpp` child process, miniaudio microphone capture, Nemotron 3.5 ASR Streaming 0.6B, and JSONL over stdin/stdout. It does not use a cloud speech API, a server, Python, an npm lifecycle script, telemetry, or automatic submission.
 
 See [`DEVELOPMENT_PLAN.md`](./DEVELOPMENT_PLAN.md) for the complete implementation plan and [`docs/PROTOCOL.md`](./docs/PROTOCOL.md) for the native IPC contract.

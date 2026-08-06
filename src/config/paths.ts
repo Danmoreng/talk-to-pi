@@ -1,9 +1,9 @@
 import { homedir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { huggingFaceModelPath } from "./model.js";
 
 export const PACKAGE_VERSION = "0.1.0";
 export const RUNTIME_VERSION = "0.1.0";
-export const MODEL_FILENAME = "nemotron-3.5-asr-streaming-0.6b.q8_0.gguf";
 
 export interface TalkPaths {
 	configDir: string;
@@ -47,8 +47,7 @@ export function getTalkPaths(env: NodeJS.ProcessEnv = process.env): TalkPaths {
 		configDir,
 		dataDir,
 		cacheDir,
-		modelPath:
-			env.TALK_TO_PI_MODEL_PATH || join(dataDir, "models", MODEL_FILENAME),
+		modelPath: env.TALK_TO_PI_MODEL_PATH || huggingFaceModelPath(env),
 		runtimeDir,
 		runtimePath:
 			env.TALK_TO_PI_RUNTIME_PATH || join(runtimeDir, "talk-to-pi-runtime"),
@@ -69,6 +68,7 @@ export async function ensureTalkDirectories(paths: TalkPaths): Promise<void> {
 		mkdir(paths.locksDir, { recursive: true }),
 		mkdir(paths.logsDir, { recursive: true }),
 		mkdir(join(paths.dataDir, "models"), { recursive: true }),
+		mkdir(dirname(paths.modelPath), { recursive: true }),
 		mkdir(join(paths.dataDir, "licenses"), { recursive: true }),
 	]);
 }

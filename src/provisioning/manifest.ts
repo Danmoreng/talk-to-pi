@@ -18,7 +18,7 @@ export interface RuntimeManifest {
 export interface ModelManifest {
 	schemaVersion: 1;
 	modelId: string;
-	engine: "parakeet.cpp";
+	engine: "nemo-speech.cpp";
 	engineCompatibility: { minimumAbi: number; maximumTestedAbi: number };
 	source: { repository: string; revision: string; filename: string };
 	url: string;
@@ -114,10 +114,12 @@ export function validateModelManifest(value: unknown): ModelManifest {
 		schemaVersion: 1,
 		modelId: string(object.modelId, "modelId"),
 		engine:
-			object.engine === "parakeet.cpp"
-				? "parakeet.cpp"
+			object.engine === "nemo-speech.cpp"
+				? "nemo-speech.cpp"
 				: (() => {
-						throw new ManifestError("Only parakeet.cpp models are supported.");
+						throw new ManifestError(
+							"Only nemo-speech.cpp models are supported.",
+						);
 					})(),
 		engineCompatibility: {
 			minimumAbi: positiveInteger(

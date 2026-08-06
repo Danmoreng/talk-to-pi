@@ -4,9 +4,19 @@ Talk-to-Pi source code is MIT-licensed; see [`LICENSE`](../LICENSE).
 
 Native dependencies are retained as pinned submodules:
 
-- `parakeet.cpp`: MIT, `5fd500fad54ef86254d675c494cbb3a5eb821df4`;
+- `NeMo-Speech.cpp`: Apache-2.0, embedded revision `f55e25fd377c8fd933fc3ab59d6f580ece99747a` based on NVIDIA `2e12e2def8a98ed06666f7ee3ca94e7193e04be4`;
+- NeMo-Speech.cpp's bundled `ggml`: MIT, revision recorded in the submodule;
 - `miniaudio`: MIT-0, `9634bedb5b5a2ca38c1ee7108a9358a4e233f14d`;
 - `nlohmann/json`: MIT, `9cca280a4d0ccf0c08f47a99aa71d1b0e52f8d03`;
-- npm `tar`: BlueOak-1.0.0, locked in `package-lock.json` and copied to `licenses/tar-BlueOak-1.0.0.md`.
+- npm `tar`: BlueOak-1.0.0, locked in `package-lock.json` and copied to
+  `licenses/tar-BlueOak-1.0.0.md`.
 
-The local development model is generated from NVIDIA's Nemotron checkpoint at repository revision `1c8deaecc64b91f034d73e08dd8b64625eb3395d` using the pinned `parakeet.cpp` converter. The local generated artifact has SHA-256 `5957dabedbef4a5eb01a1dc6204f41bb135b41aa614998d70bff7002764d39c3`. The weights are governed by OpenMDW-1.1. The NVIDIA Nemotron weights are separate from the project code. Talk-to-Pi is not affiliated with or endorsed by NVIDIA.
+The production model is NVIDIA's official Nemotron Q8_0 GGUF from repository
+revision `1c8deaecc64b91f034d73e08dd8b64625eb3395d`. It has SHA-256
+`a5c435f294eea8f88ce68dd27b8c3bfea7f777cb2fbba04fcd30eaa555f429ae` and is
+governed by OpenMDW-1.1. The model is separate from the project code and is
+downloaded from its pinned Hugging Face repository into the user's cache only
+after confirmation. Talk-to-Pi is not affiliated with or endorsed by NVIDIA.
+
+The isolated engine-evaluation spike retains parakeet.cpp for comparison; it
+is not part of the production runtime.

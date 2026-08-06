@@ -31,20 +31,20 @@ The extension communicates with `talk-to-pi-runtime` through UTF-8 JSON Lines. C
 ## Events and responses
 
 ```json
-{"v":1,"type":"hello","seq":1,"runtimeVersion":"0.1.0","protocolVersions":[1],"parakeetAbi":6,"platform":"linux-x64-cpu"}
+{"v":1,"type":"hello","seq":1,"runtimeVersion":"0.1.0","protocolVersions":[1],"nemoAbi":1,"engine":"nemo-speech.cpp","platform":"linux-x64-cpu"}
 {"v":1,"type":"loading_model","seq":2}
 {"v":1,"type":"ready","seq":3,"model":"nemotron-3.5-asr-streaming-0.6b-q8_0","modelLoadMs":4321}
 {"v":1,"type":"pong","id":"req-1","seq":4}
 {"v":1,"type":"command_ack","id":"req-2","seq":5,"command":"start","sessionId":"session-1"}
 {"v":1,"type":"recording_started","seq":6,"sessionId":"session-1","language":"de-DE","audioDevice":"Default"}
-{"v":1,"type":"transcript_delta","seq":7,"sessionId":"session-1","text":"Hallo"}
+{"v":1,"type":"transcript_update","seq":7,"sessionId":"session-1","text":"Hallo"}
 {"v":1,"type":"speech_event","seq":8,"sessionId":"session-1","event":"eou","timeSec":1.2}
 {"v":1,"type":"recording_finalized","seq":9,"sessionId":"session-1","text":"Hallo"}
 {"v":1,"type":"recording_cancelled","seq":9,"sessionId":"session-1"}
 {"v":1,"type":"shutdown_complete","seq":10}
 ```
 
-A session emits exactly one terminal event: `recording_finalized`, `recording_cancelled`, or a fatal error. `transcript_delta.text` is append-only newly finalized text, never a replacement hypothesis.
+A session emits exactly one terminal event: `recording_finalized`, `recording_cancelled`, or a fatal error. NeMo interim hypotheses are cumulative and may be revised, so `transcript_update.text` replaces the current visible transcript. The legacy `transcript_delta.text` event remains append-only for compatible runtimes.
 
 Errors use this shape:
 

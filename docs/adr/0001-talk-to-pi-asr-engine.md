@@ -1,57 +1,48 @@
-# ADR-0001: Talk-to-Pi ASR engine evaluation
+# ADR-0001: Talk-to-Pi ASR engine selection
 
-**Status:** Draft — no final engine decision yet
+**Status:** Accepted for the current development default
 **Date:** 2026-08-06
 
 ## Context
 
-Talk-to-Pi currently uses parakeet.cpp. The evaluation spike compares it with
-NVIDIA NeMo-Speech.cpp using the same pinned NVIDIA Nemotron source revision
-`1c8deaecc64b91f034d73e08dd8b64625eb3395d` and the same PCM fixture.
+The evaluation compared NVIDIA NeMo-Speech.cpp with parakeet.cpp using the same
+pinned Nemotron source revision
+`1c8deaecc64b91f034d73e08dd8b64625eb3395d` and identical PCM input.
 
-## Implemented evidence
+## Evidence
 
-- NeMo-Speech.cpp `2e12e2def8a98ed06666f7ee3ca94e7193e04be4` builds on CPU.
-- parakeet.cpp `1764d8c6951473dbd9ba62064e876b68d5005eb0` builds on CPU and CUDA.
-- NVIDIA's official Q8_0 model loads only in NeMo-Speech.cpp.
-- The locally generated parakeet Q8_0 model loads only in parakeet.cpp.
+- NeMo-Speech.cpp `2e12e2def8a98ed06666f7ee3ca94e7193e04be4` builds on CPU and CUDA.
+- The official NVIDIA Q8_0 model loads directly in NeMo-Speech.cpp.
+- The locally generated parakeet Q8_0 model is engine-specific and loads only in
+  parakeet.cpp.
 - Cross-engine model loading fails cleanly in both directions.
-- A common JSONL runner feeds identical 16 kHz mono PCM to both engines.
-- Smoke WER is 0 for both engines on the existing LibriSpeech fixture.
+- On the English smoke fixture, CPU RTF was approximately `0.128` for NeMo and
+  `0.165` for parakeet.
+- The official NVIDIA model is smaller: approximately 742 MB versus 984 MB.
 
-The smoke result is not sufficient for a product decision. It is an English
-public fixture, not the German coding corpus, and it does not include the
-required blinded user sessions, soak tests, F16 controls, or confidence
-intervals.
-
-## Current smoke observations
-
-| Metric                  |        NeMo-Speech.cpp |           parakeet.cpp |
-| ----------------------- | ---------------------: | ---------------------: |
-| Q8 model size           |      741,548,352 bytes |      983,696,480 bytes |
-| Real-time TTFH          | approximately 1,008 ms | approximately 1,029 ms |
-| Real-time stop-to-final |    approximately 69 ms |    approximately 53 ms |
-| Smoke WER               |                  0.000 |                  0.000 |
-
-These values are harness smoke observations, not release claims.
-
-An additional exploratory parakeet CUDA run on the local RTX 5080 used the
-same Q8 model and four threads. After model initialization it measured RTF
-`0.049`, TTFH `~92 ms`, and stop-to-final `~9 ms`. The cold CUDA model load was
-`~2.9 s` on the first process. The CUDA build also required an explicit backend
-shutdown fix to avoid a driver-teardown abort; it remains experimental.
+These remain smoke observations, not a German accuracy claim. The local
+RTX 5080 CUDA experiment measured approximately `0.049` RTF after warm-up, but
+CUDA remains optional because of higher startup and memory costs.
 
 ## Decision
 
-Deferred until the decision corpus and primary-user A/B sessions are available.
-Production remains single-engine parakeet.cpp; NeMo-Speech.cpp remains isolated
-under `spikes/engine-evaluation/`.
+NeMo-Speech.cpp is now the single production engine and default. The production
+runtime uses NeMo's C ABI, the official NVIDIA Q8_0 GGUF, and a pinned Hugging
+Face snapshot cache path. The first `/talk` asks permission before downloading
+the model.
 
-## Next evidence required
+The parakeet.cpp implementation and generated model remain isolated under
+`spikes/engine-evaluation/` for historical comparison only. They are not part
+of the production runtime.
 
-1. Record the Stage A and Stage B German coding corpus.
-2. Run the paired 320 ms CPU matrix with alternating order.
-3. Run 100-session and cancel soaks.
-4. Measure stable-prefix latency and manual edit ratio.
-5. Complete blinded `/talk-eval` sessions.
-6. Update this ADR to select exactly one engine.
+The existing JSONL protocol and Pi editor handoff remain unchanged. NeMo
+cumulative interim hypotheses are represented as replacement transcript updates
+so revisions never get appended as duplicated text.
+
+## Remaining release validation
+
+- German coding corpus and references;
+- primary-user A/B sessions;
+- repeated-session and cancellation soaks;
+- clean-system installation with a published verified runtime archive;
+- final accuracy and confidence-interval report.

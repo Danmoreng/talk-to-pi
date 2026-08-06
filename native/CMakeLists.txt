@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.26)
 project(talk_to_pi_runtime VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -8,16 +8,30 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 option(TALK_TO_PI_BUILD_TESTS "Build native protocol tests" ON)
 option(TALK_TO_PI_ENABLE_CUDA "Enable the CUDA backend for local NVIDIA GPU builds" OFF)
 
-set(PARAKEET_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(PARAKEET_GGML_CUDA ${TALK_TO_PI_ENABLE_CUDA} CACHE BOOL "" FORCE)
-set(PARAKEET_BUILD_CLI OFF CACHE BOOL "" FORCE)
-set(PARAKEET_BUILD_SERVER OFF CACHE BOOL "" FORCE)
-set(PARAKEET_SHARED OFF CACHE BOOL "" FORCE)
-set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
-set(GGML_LLAMAFILE OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_ASR ON CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_DIAR OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_TTS OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_NMT OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_CLI OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_HTTP OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_GRPC OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(NEMO_SPEECH_CUBLAS_SHIM OFF CACHE BOOL "" FORCE)
+set(GGML_CUDA ${TALK_TO_PI_ENABLE_CUDA} CACHE BOOL "" FORCE)
 
-add_subdirectory(vendor/parakeet.cpp parakeet-build EXCLUDE_FROM_ALL)
-target_include_directories(parakeet PRIVATE vendor/parakeet.cpp/third_party)
+find_program(BASH_EXECUTABLE bash REQUIRED)
+execute_process(
+  COMMAND "${BASH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/NeMo-Speech.cpp/scripts/apply-ggml-patches.sh"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/NeMo-Speech.cpp"
+  RESULT_VARIABLE NEMO_PATCH_RESULT
+)
+if(NEMO_PATCH_RESULT)
+  message(FATAL_ERROR "NeMo-Speech.cpp ggml patch application failed: ${NEMO_PATCH_RESULT}")
+endif()
+
+add_subdirectory(vendor/NeMo-Speech.cpp nemo-speech-build EXCLUDE_FROM_ALL)
 
 add_library(miniaudio STATIC vendor/miniaudio/miniaudio.c)
 target_include_directories(miniaudio PUBLIC vendor/miniaudio)
@@ -35,10 +49,10 @@ add_executable(talk-to-pi-runtime
 target_include_directories(talk-to-pi-runtime PRIVATE
   include
   vendor/nlohmann-json/single_include
-  vendor/parakeet.cpp/include
+  vendor/NeMo-Speech.cpp/include
   vendor/miniaudio
 )
-target_link_libraries(talk-to-pi-runtime PRIVATE parakeet miniaudio Threads::Threads ${CMAKE_DL_LIBS} m)
+target_link_libraries(talk-to-pi-runtime PRIVATE nemo_speech_asr_c miniaudio Threads::Threads ${CMAKE_DL_LIBS} m)
 target_compile_definitions(talk-to-pi-runtime PRIVATE
   TALK_TO_PI_ENABLE_CUDA=$<BOOL:${TALK_TO_PI_ENABLE_CUDA}>
 )

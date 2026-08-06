@@ -14,9 +14,9 @@
 
 **Primary platform for the MVP:** Linux x86_64, CPU inference
 
-**ASR engine:** `parakeet.cpp`
+**ASR engine:** `NeMo-Speech.cpp`
 
-**ASR model:** NVIDIA Nemotron 3.5 ASR Streaming 0.6B, locally generated stock-compatible Q8_0 GGUF
+**ASR model:** NVIDIA Nemotron 3.5 ASR Streaming 0.6B, official pinned Q8_0 GGUF from the Hugging Face cache
 **Scope:** Local streaming speech-to-text only; no LLM cleanup, no cloud backend, no server configuration
 
 ---
@@ -28,7 +28,7 @@ Talk-to-Pi is a local voice-input extension for the Pi Coding Agent. It lets a u
 The extension is deliberately narrow:
 
 - one coding-agent integration: Pi;
-- one inference engine: `parakeet.cpp`;
+- one inference engine: `NeMo-Speech.cpp`;
 - one model family: NVIDIA Nemotron 3.5 ASR Streaming 0.6B;
 - one managed native process;
 - one local microphone;
@@ -38,9 +38,9 @@ The extension is deliberately narrow:
 - no backend abstraction;
 - no automatic submission.
 
-The native process links `parakeet.cpp` and captures the microphone directly. The Pi extension communicates with it over newline-delimited JSON on stdin/stdout. There are no ports, sockets, background services, Docker containers, or user-managed daemons.
+The native process links `NeMo-Speech.cpp` and captures the microphone directly. The Pi extension communicates with it over newline-delimited JSON on stdin/stdout. There are no ports, sockets, background services, Docker containers, or user-managed daemons.
 
-The code in this repository is MIT-licensed. The model weights are not MIT-licensed and must retain their own governing license and attribution. The model should be downloaded automatically on first use rather than embedded in the npm package.
+The code in this repository is MIT-licensed. The model weights are not MIT-licensed and must retain their own governing license and attribution. The model should be downloaded from the pinned NVIDIA Hugging Face revision into the user's Hugging Face cache after explicit first-use confirmation rather than embedded in the npm package.
 
 ---
 

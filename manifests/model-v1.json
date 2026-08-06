@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "modelId": "nemotron-3.5-asr-streaming-0.6b-q8_0",
-  "engine": "parakeet.cpp",
+  "engine": "nemo-speech.cpp",
   "engineCompatibility": {
-    "minimumAbi": 6,
-    "maximumTestedAbi": 6
+    "minimumAbi": 1,
+    "maximumTestedAbi": 1
   },
   "source": {
     "repository": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b",
-    "revision": "RELEASE_GATE_REQUIRED",
-    "filename": "nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf"
+    "revision": "1c8deaecc64b91f034d73e08dd8b64625eb3395d",
+    "filename": "nemotron-3.5-asr-streaming-0.6b.q8_0.gguf"
   },
-  "url": "https://example.invalid/release-gate/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf",
-  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
-  "sizeBytes": 1,
+  "url": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b/resolve/1c8deaecc64b91f034d73e08dd8b64625eb3395d/nemotron-3.5-asr-streaming-0.6b.q8_0.gguf?download=true",
+  "sha256": "a5c435f294eea8f88ce68dd27b8c3bfea7f777cb2fbba04fcd30eaa555f429ae",
+  "sizeBytes": 741548352,
   "license": "OpenMDW-1.1",
-  "attribution": "NVIDIA Nemotron 3.5 ASR"
+  "attribution": "NVIDIA Nemotron 3.5 ASR Streaming 0.6B"
 }

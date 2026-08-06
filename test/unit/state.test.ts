@@ -20,6 +20,24 @@ describe("talk session reducer", () => {
 		expect(state.transcript).toBe("Hallo");
 	});
 
+	it("replaces cumulative interim hypotheses", () => {
+		let state = reduceTalkState(initialTalkState, {
+			type: "recording_started",
+			sessionId: "s1",
+		});
+		state = reduceTalkState(state, {
+			type: "transcript_update",
+			sessionId: "s1",
+			text: "Hallo Welt",
+		});
+		state = reduceTalkState(state, {
+			type: "transcript_update",
+			sessionId: "s1",
+			text: "Hallo Welt!",
+		});
+		expect(state.transcript).toBe("Hallo Welt!");
+	});
+
 	it("uses final text as authoritative", () => {
 		let state = reduceTalkState(initialTalkState, {
 			type: "recording_started",

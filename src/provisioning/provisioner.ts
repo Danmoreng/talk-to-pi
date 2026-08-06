@@ -39,6 +39,17 @@ export interface ProvisionerProgress {
 export class Provisioner {
 	constructor(private readonly paths: TalkPaths = getTalkPaths()) {}
 
+	async ensureModel(
+		onProgress?: (progress: ProvisionerProgress) => void,
+		signal?: AbortSignal,
+	): Promise<void> {
+		await ensureTalkDirectories(this.paths);
+		const modelManifest = await readModelManifest();
+		await withFileLock(join(this.paths.locksDir, "model.lock"), async () => {
+			await this.installModel(modelManifest, onProgress, signal);
+		});
+	}
+
 	async ensure(
 		onProgress?: (progress: ProvisionerProgress) => void,
 		signal?: AbortSignal,
@@ -52,7 +63,6 @@ export class Provisioner {
 		const runtimeArtifact = runtimeManifest.artifacts[platform];
 		if (!runtimeArtifact)
 			throw new Error(`No runtime artifact is published for ${platform}.`);
-		this.validateModelReleaseGate(modelManifest);
 
 		await withFileLock(join(this.paths.locksDir, "assets.lock"), async () => {
 			await this.installModel(modelManifest, onProgress, signal);
@@ -174,19 +184,6 @@ export class Provisioner {
 			return true;
 		} catch {
 			return false;
-		}
-	}
-
-	private validateModelReleaseGate(manifest: ModelManifest): void {
-		if (
-			manifest.source.revision === "RELEASE_GATE_REQUIRED" ||
-			manifest.url === "RELEASE_GATE_REQUIRED" ||
-			manifest.sha256 === "RELEASE_GATE_REQUIRED" ||
-			manifest.sizeBytes <= 0
-		) {
-			throw new Error(
-				"The Nemotron model manifest is not release-ready; provenance, URL, size, and SHA-256 must be finalized first.",
-			);
 		}
 	}
 

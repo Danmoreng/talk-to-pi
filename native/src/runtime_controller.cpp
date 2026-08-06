@@ -17,7 +17,8 @@ void RuntimeController::emit_hello() {
         {"type", "hello"},
         {"runtimeVersion", "0.1.0"},
         {"protocolVersions", {kProtocolVersion}},
-        {"parakeetAbi", engine_.abi_version()},
+        {"nemoAbi", engine_.abi_version()},
+        {"engine", "nemo-speech.cpp"},
         {"platform", TALK_TO_PI_ENABLE_CUDA ? "linux-x64-cuda" : "linux-x64-cpu"},
     });
 }
@@ -37,6 +38,7 @@ bool RuntimeController::load_model() {
         {"v", kProtocolVersion},
         {"type", "ready"},
         {"model", "nemotron-3.5-asr-streaming-0.6b-q8_0"},
+        {"engine", "nemo-speech.cpp"},
     });
     return true;
 }
@@ -202,7 +204,15 @@ void RuntimeController::worker_loop(std::string session_id) {
 }
 
 void RuntimeController::emit_feed(const FeedResult& result, const std::string& session_id) {
-    if (!result.text.empty()) {
+    if (result.cumulative_text) {
+        transcript_ = result.text;
+        emit({
+            {"v", kProtocolVersion},
+            {"type", "transcript_update"},
+            {"sessionId", session_id},
+            {"text", transcript_},
+        });
+    } else if (!result.text.empty()) {
         transcript_ += result.text;
         emit({
             {"v", kProtocolVersion},

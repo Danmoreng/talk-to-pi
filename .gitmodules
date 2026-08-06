@@ -7,3 +7,6 @@
 [submodule "native/vendor/nlohmann-json"]
 	path = native/vendor/nlohmann-json
 	url = https://github.com/nlohmann/json.git
+[submodule "native/vendor/NeMo-Speech.cpp"]
+	path = native/vendor/NeMo-Speech.cpp
+	url = https://github.com/NVIDIA/NeMo-Speech.cpp.git

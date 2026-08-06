@@ -80,6 +80,18 @@ export function registerTalkCommand(
 			return;
 		}
 
+		const diagnostics = await runtime.getDiagnostics();
+		if (!diagnostics.modelInstalled) {
+			const approved = await ctx.ui.confirm(
+				"Download NVIDIA speech model?",
+				`Talk-to-Pi needs approximately 742 MB in the Hugging Face cache:\n${diagnostics.modelPath}`,
+			);
+			if (!approved) {
+				ctx.ui.notify("Talk-to-Pi model download cancelled.", "info");
+				return;
+			}
+		}
+
 		const sessionId = randomUUID();
 		const abortController = new AbortController();
 		let overlay: TalkOverlay | undefined;
@@ -148,6 +160,13 @@ export function registerTalkCommand(
 					if (message.type === "recording_started") {
 						recordingStarted = true;
 						overlay?.setPhase("recording");
+						return;
+					}
+					if (
+						message.type === "transcript_update" &&
+						typeof message.text === "string"
+					) {
+						overlay?.setTranscript(message.text);
 						return;
 					}
 					if (

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	ManifestError,
+	validateModelManifest,
 	validateRuntimeManifest,
 } from "../../src/provisioning/manifest.js";
 
@@ -21,6 +22,26 @@ describe("asset manifests", () => {
 			},
 		});
 		expect(manifest.artifacts["linux-x64-cpu"]?.sha256).toBe("a".repeat(64));
+	});
+
+	it("accepts the official NeMo model manifest shape", () => {
+		const manifest = validateModelManifest({
+			schemaVersion: 1,
+			modelId: "nemotron",
+			engine: "nemo-speech.cpp",
+			engineCompatibility: { minimumAbi: 1, maximumTestedAbi: 1 },
+			source: {
+				repository: "https://huggingface.co/nvidia/nemotron",
+				revision: "a".repeat(40),
+				filename: "model.gguf",
+			},
+			url: "https://huggingface.co/nvidia/nemotron/resolve/a/model.gguf",
+			sha256: "b".repeat(64),
+			sizeBytes: 42,
+			license: "OpenMDW-1.1",
+			attribution: "NVIDIA",
+		});
+		expect(manifest.engine).toBe("nemo-speech.cpp");
 	});
 
 	it("rejects non-HTTPS and placeholder artifacts", () => {

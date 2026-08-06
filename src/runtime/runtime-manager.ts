@@ -69,6 +69,10 @@ export class RuntimeManager implements TalkRuntime {
 		if (signal?.aborted)
 			throw new DOMException("The operation was aborted.", "AbortError");
 		if (await this.hasExplicitLocalAssets()) return;
+		if (this.hasRuntimeOnlyOverride()) {
+			await this.provisioner.ensureModel(onProgress, signal);
+			return;
+		}
 		try {
 			await this.provisioner.ensure(
 				onProgress
@@ -189,9 +193,17 @@ export class RuntimeManager implements TalkRuntime {
 		const runtimeOverride = process.env.TALK_TO_PI_RUNTIME_PATH;
 		const modelOverride = process.env.TALK_TO_PI_MODEL_PATH;
 		if (!runtimeOverride && !modelOverride) return false;
+		if (runtimeOverride && !modelOverride) {
+			if (!(await this.isExecutable(runtimeOverride))) {
+				throw new RuntimeUnavailableError(
+					"The configured TALK_TO_PI_RUNTIME_PATH is not executable.",
+				);
+			}
+			return false;
+		}
 		if (!runtimeOverride || !modelOverride) {
 			throw new RuntimeUnavailableError(
-				"TALK_TO_PI_RUNTIME_PATH and TALK_TO_PI_MODEL_PATH must be set together.",
+				"TALK_TO_PI_RUNTIME_PATH and TALK_TO_PI_MODEL_PATH must be set together unless the model is provisioned from Hugging Face.",
 			);
 		}
 		const [runtimeInstalled, modelInstalled] = await Promise.all([
@@ -204,6 +216,12 @@ export class RuntimeManager implements TalkRuntime {
 			);
 		}
 		return true;
+	}
+
+	private hasRuntimeOnlyOverride(): boolean {
+		return Boolean(
+			process.env.TALK_TO_PI_RUNTIME_PATH && !process.env.TALK_TO_PI_MODEL_PATH,
+		);
 	}
 
 	private async isExecutable(path: string): Promise<boolean> {

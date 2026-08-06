@@ -21,6 +21,7 @@ export type TalkAction =
 	| { type: "starting_runtime" }
 	| { type: "recording_started"; sessionId: string }
 	| { type: "transcript_delta"; sessionId: string; text: string }
+	| { type: "transcript_update"; sessionId: string; text: string }
 	| { type: "speech_event"; sessionId: string; event: "eou" | "eob" }
 	| { type: "finalizing" }
 	| { type: "recording_finalized"; sessionId: string; text: string }
@@ -48,6 +49,10 @@ export function reduceTalkState(
 			if (state.phase !== "recording" || state.sessionId !== action.sessionId)
 				return state;
 			return { ...state, transcript: state.transcript + action.text };
+		case "transcript_update":
+			if (state.phase !== "recording" || state.sessionId !== action.sessionId)
+				return state;
+			return { ...state, transcript: action.text };
 		case "speech_event":
 			if (state.sessionId !== action.sessionId) return state;
 			return { ...state, speechEvent: action.event };

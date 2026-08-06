@@ -2,7 +2,7 @@
 
 ## `/talk` says the runtime is not provisioned
 
-For local development, start Pi with `npm run local:pi`; it supplies the locally generated parakeet.cpp model and native runtime through explicit path overrides. Run `/talk-doctor` to inspect them. Release provisioning is not enabled until the model artifact has been published with a stable URL and checksum.
+For local development, start Pi with `npm run local:pi`; it supplies the locally built NeMo-Speech.cpp runtime. On the first `/talk`, approve the download of the pinned NVIDIA Q8_0 model into the Hugging Face cache. Run `/talk-doctor` to inspect the resolved paths. Release provisioning remains gated until a stable, verified native runtime archive is published.
 
 ## Tastenkürzel funktioniert nicht
 

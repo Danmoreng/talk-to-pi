@@ -16,6 +16,7 @@ model:
 nemoSpeechCpp:
   repository: https://github.com/NVIDIA/NeMo-Speech.cpp
   revision: 2e12e2def8a98ed06666f7ee3ca94e7193e04be4
+  embeddedRevision: f55e25fd377c8fd933fc3ab59d6f580ece99747a
   ggmlRevision: c03b4e2bcece5134827881af90242086daf75be5
 parakeetCpp:
   repository: https://github.com/mudler/parakeet.cpp
