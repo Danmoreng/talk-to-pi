@@ -211,11 +211,10 @@ export function registerTalkCommand(
 			{
 				overlay: true,
 				overlayOptions: {
-					width: "62%",
-					minWidth: 44,
-					maxHeight: "45%",
-					anchor: "bottom-right",
-					margin: 1,
+					width: "80%",
+					minWidth: 48,
+					maxHeight: "60%",
+					anchor: "center",
 				},
 			},
 		);

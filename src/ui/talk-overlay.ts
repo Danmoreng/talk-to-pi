@@ -1,7 +1,12 @@
 import type { Theme } from "@earendil-works/pi-coding-agent";
-import { DynamicBorder } from "@earendil-works/pi-coding-agent";
 import type { Component, TUI } from "@earendil-works/pi-tui";
-import { Container, Text, matchesKey } from "@earendil-works/pi-tui";
+import {
+	Container,
+	Text,
+	matchesKey,
+	truncateToWidth,
+	visibleWidth,
+} from "@earendil-works/pi-tui";
 import { statusText, type TalkStatus } from "./status-view.js";
 
 export type TalkOverlayResult =
@@ -113,11 +118,25 @@ export class TalkOverlay extends Container implements Component {
 		}
 	}
 
+	override render(width: number): string[] {
+		const innerWidth = Math.max(1, width - 2);
+		const frame = (value: string): string => this.theme.fg("accent", value);
+		const body = super.render(innerWidth).map((line) => {
+			const content = truncateToWidth(line, innerWidth, "");
+			const padding = " ".repeat(
+				Math.max(0, innerWidth - visibleWidth(content)),
+			);
+			return `${frame("│")}${content}${padding}${frame("│")}`;
+		});
+		return [
+			frame(`╭${"─".repeat(innerWidth)}╮`),
+			...body,
+			frame(`╰${"─".repeat(innerWidth)}╯`),
+		];
+	}
+
 	private rebuild(): void {
 		this.clear();
-		this.addChild(
-			new DynamicBorder((value: string) => this.theme.fg("accent", value)),
-		);
 		this.addChild(
 			new Text(this.theme.fg("accent", this.theme.bold("🎙 Talk-to-Pi")), 1, 0),
 		);
@@ -148,8 +167,5 @@ export class TalkOverlay extends Container implements Component {
 					? "Finalizing… · Esc discard"
 					: "Esc discard";
 		this.addChild(new Text(this.theme.fg("dim", hint), 1, 0));
-		this.addChild(
-			new DynamicBorder((value: string) => this.theme.fg("accent", value)),
-		);
 	}
 }
