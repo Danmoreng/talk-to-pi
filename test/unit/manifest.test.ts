@@ -62,4 +62,23 @@ describe("asset manifests", () => {
 			}),
 		).toThrowError(ManifestError);
 	});
+
+	it("rejects an unsafe runtime executable path", () => {
+		expect(() =>
+			validateRuntimeManifest({
+				schemaVersion: 1,
+				runtimeVersion: "0.1.0",
+				protocolVersion: 1,
+				artifacts: {
+					linux: {
+						url: "https://example.com/runtime.tar.gz",
+						sha256: "a".repeat(64),
+						sizeBytes: 1,
+						archiveType: "tar.gz",
+						executable: "../runtime",
+					},
+				},
+			}),
+		).toThrowError(ManifestError);
+	});
 });

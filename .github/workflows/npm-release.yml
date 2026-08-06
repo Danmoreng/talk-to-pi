@@ -1,0 +1,36 @@
+name: npm release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run format:check
+      - run: node scripts/verify-publish.mjs "$GITHUB_REF_NAME"
+      - run: npm pack --dry-run
+      - name: Use an npm CLI with trusted publishing support
+        run: npm install --global npm@11
+      - name: Publish with npm provenance
+        run: npm publish --access public --provenance
+        env:
+          # Needed only for the first publication. Later releases use npm
+          # Trusted Publishing through this workflow's OIDC identity.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

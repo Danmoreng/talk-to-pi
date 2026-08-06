@@ -15,6 +15,9 @@
   "engines": {
     "node": ">=22.19.0"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
     "@earendil-works/pi-tui": "*"
@@ -36,6 +39,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "native:build": "node scripts/build-native.mjs",
+    "native:package": "node scripts/package-runtime.mjs",
+    "release:verify": "node scripts/verify-publish.mjs",
     "install:local:pi": "bash scripts/install-local-pi.sh",
     "native:test": "ctest --test-dir native/build --output-on-failure",
     "local:pi": "bash scripts/local-pi.sh",

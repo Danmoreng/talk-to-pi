@@ -1,0 +1,108 @@
+name: Native runtime release
+
+on:
+  push:
+    tags:
+      - "runtime-v*"
+  workflow_dispatch:
+    inputs:
+      runtimeVersion:
+        description: "Runtime version from package.json (for example 0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+      - id: version
+        env:
+          INPUT_VERSION: ${{ inputs.runtimeVersion }}
+        run: |
+          package_version=$(node -p "require('./package.json').version")
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            tag="runtime-v${INPUT_VERSION}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+          if [[ "$tag" != "runtime-v${package_version}" ]]; then
+            echo "Tag $tag does not match package version $package_version" >&2
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x64-cpu
+            runner: ubuntu-24.04
+          - platform: linux-arm64-cpu
+            runner: ubuntu-24.04-arm
+          - platform: darwin-x64-cpu
+            runner: macos-13
+          - platform: darwin-arm64-cpu
+            runner: macos-14
+          - platform: win32-x64-cpu
+            runner: windows-2022
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Build release runtime
+        run: node scripts/build-native.mjs --release --build-dir native/build-release
+      - name: Package and smoke-test release runtime
+        run: node scripts/package-runtime.mjs --build-dir native/build-release --output-dir artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: runtime-${{ matrix.platform }}
+          path: artifacts/*
+          if-no-files-found: error
+
+  release:
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.19.0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: runtime-*
+          path: artifacts
+          merge-multiple: true
+      - name: Create verified runtime manifest
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/create-runtime-manifest.mjs artifacts "${{ needs.prepare.outputs.tag }}"
+      - name: Publish immutable runtime assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNTIME_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          gh release create "$RUNTIME_TAG" \
+            artifacts/*.tar.gz artifacts/runtime-v1.json artifacts/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "Talk-to-Pi native runtime ${RUNTIME_TAG#runtime-v}" \
+            --generate-notes

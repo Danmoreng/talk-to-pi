@@ -5,7 +5,8 @@ coverage/
 
 build/
 native/build/
-native/build-cuda/
+native/build-*/
+artifacts/
 
 *.log
 *.partial

@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { Buffer } from "node:buffer";
+import { delimiter, dirname, join } from "node:path";
 import {
 	encodeProtocolMessage,
 	JsonlDecoder,
@@ -87,6 +88,17 @@ export class RuntimeProcess {
 		this.sequence = 0;
 		this.stderrBuffer = "";
 		this.recentMessages = [];
+		const env = { ...process.env, ...this.options.env };
+		const libraryVariable =
+			process.platform === "win32"
+				? "PATH"
+				: process.platform === "darwin"
+					? "DYLD_LIBRARY_PATH"
+					: "LD_LIBRARY_PATH";
+		const libraryDir = join(dirname(this.options.runtimePath), "lib");
+		env[libraryVariable] = env[libraryVariable]
+			? `${libraryDir}${delimiter}${env[libraryVariable]}`
+			: libraryDir;
 		this.child = spawn(
 			this.options.runtimePath,
 			[
@@ -102,7 +114,7 @@ export class RuntimeProcess {
 				stdio: ["pipe", "pipe", "pipe"],
 				shell: false,
 				windowsHide: true,
-				env: { ...process.env, ...this.options.env },
+				env,
 			},
 		);
 

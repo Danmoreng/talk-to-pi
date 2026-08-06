@@ -18,7 +18,8 @@ int main(int argc, char** argv) {
         } else if (argument == "--protocol-version" && index + 1 < argc) {
             protocol_version = std::stoi(argv[++index]);
         } else if (argument == "--version") {
-            std::cout << "talk-to-pi-runtime 0.1.0\n";
+            std::cout << "talk-to-pi-runtime " << TALK_TO_PI_RUNTIME_VERSION
+                      << " (" << TALK_TO_PI_PLATFORM_KEY << ")\n";
             return 0;
         }
     }

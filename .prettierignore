@@ -1,6 +1,7 @@
 native/vendor/
 native/build/
-native/build-cuda/
+native/build-*/
+artifacts/
 node_modules/
 dist/
 coverage/

@@ -15,11 +15,11 @@ void RuntimeController::emit_hello() {
     emit({
         {"v", kProtocolVersion},
         {"type", "hello"},
-        {"runtimeVersion", "0.1.0"},
+        {"runtimeVersion", TALK_TO_PI_RUNTIME_VERSION},
         {"protocolVersions", {kProtocolVersion}},
         {"nemoAbi", engine_.abi_version()},
         {"engine", "nemo-speech.cpp"},
-        {"platform", TALK_TO_PI_ENABLE_CUDA ? "linux-x64-cuda" : "linux-x64-cpu"},
+        {"platform", TALK_TO_PI_PLATFORM_KEY},
     });
 }
 

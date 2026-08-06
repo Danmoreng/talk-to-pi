@@ -1,6 +1,7 @@
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { huggingFaceModelPath } from "./model.js";
+import { runtimeExecutableName } from "./platform.js";
 
 export const PACKAGE_VERSION = "0.1.0";
 export const RUNTIME_VERSION = "0.1.0";
@@ -52,7 +53,7 @@ export function getTalkPaths(env: NodeJS.ProcessEnv = process.env): TalkPaths {
 		modelPath: env.TALK_TO_PI_MODEL_PATH || huggingFaceModelPath(env),
 		runtimeDir,
 		runtimePath:
-			env.TALK_TO_PI_RUNTIME_PATH || join(runtimeDir, "talk-to-pi-runtime"),
+			env.TALK_TO_PI_RUNTIME_PATH || join(runtimeDir, runtimeExecutableName()),
 		downloadsDir: join(cacheDir, "downloads"),
 		locksDir: join(cacheDir, "locks"),
 		logsDir: join(cacheDir, "logs"),

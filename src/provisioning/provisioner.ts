@@ -21,6 +21,7 @@ import {
 	writeInstallSentinel,
 	type DownloadProgress,
 } from "./download.js";
+import { runtimePlatformKey } from "../config/platform.js";
 import {
 	readModelManifest,
 	readRuntimeManifest,
@@ -161,19 +162,19 @@ export class Provisioner {
 		if (normalized.startsWith("/") || normalized.split("/").includes(".."))
 			throw new Error(`Unsafe runtime archive path: ${path}`);
 		if (
-			entryType === "SymbolicLink" ||
-			entryType === "Link" ||
-			entryType === "BlockDevice" ||
-			entryType === "CharacterDevice"
-		) {
+			entryType !== "File" &&
+			entryType !== "OldFile" &&
+			entryType !== "Directory"
+		)
 			throw new Error(`Unsafe runtime archive entry type: ${path}`);
-		}
-		if (
-			normalized !== executable &&
-			!executable.startsWith(`${normalized.replace(/\/$/, "")}/`)
-		) {
-			throw new Error(`Unexpected runtime archive entry: ${path}`);
-		}
+		const archivePath = normalized.replace(/\/$/, "");
+		const allowed =
+			archivePath === executable ||
+			archivePath.startsWith("lib/") ||
+			archivePath.startsWith("licenses/") ||
+			archivePath === "lib" ||
+			archivePath === "licenses";
+		if (!allowed) throw new Error(`Unexpected runtime archive entry: ${path}`);
 		return true;
 	}
 
@@ -188,10 +189,6 @@ export class Provisioner {
 	}
 
 	private platformKey(): string {
-		if (process.platform === "linux" && process.arch === "x64")
-			return "linux-x64-cpu";
-		throw new Error(
-			`Talk-to-Pi does not support ${process.platform}-${process.arch} in this release.`,
-		);
+		return runtimePlatformKey();
 	}
 }

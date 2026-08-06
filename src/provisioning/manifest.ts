@@ -57,6 +57,18 @@ function sha256(value: unknown, label: string): string {
 	return result;
 }
 
+function safeRelativePath(value: unknown, label: string): string {
+	const result = string(value, label).replaceAll("\\", "/");
+	if (
+		result.startsWith("/") ||
+		result
+			.split("/")
+			.some((part) => part === "" || part === "." || part === "..")
+	)
+		throw new ManifestError(`${label} must be a safe relative path.`);
+	return result;
+}
+
 function httpsUrl(value: unknown, label: string): string {
 	const result = string(value, label);
 	let url: URL;
@@ -90,7 +102,10 @@ export function validateRuntimeManifest(value: unknown): RuntimeManifest {
 								`${platform}.archiveType must be tar.gz.`,
 							);
 						})(),
-			executable: string(artifact.executable, `${platform}.executable`),
+			executable: safeRelativePath(
+				artifact.executable,
+				`${platform}.executable`,
+			),
 		};
 	}
 	return {
