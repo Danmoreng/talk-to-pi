@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "talk-to-pi-engine-evaluation-event",
+  "type": "object",
+  "required": ["schemaVersion", "runId", "engine", "event", "emittedAtMs"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "runId": { "type": "string", "minLength": 1 },
+    "engine": { "type": "string", "enum": ["nemo", "parakeet", "nemo-speech-cpp", "parakeet-cpp"] },
+    "event": { "type": "string" },
+    "emittedAtMs": { "type": "number", "minimum": 0 },
+    "text": { "type": "string" },
+    "rawText": { "type": "string" },
+    "final": { "type": "boolean" },
+    "engineStable": { "type": "boolean" },
+    "audioProcessedMs": { "type": "number", "minimum": 0 }
+  },
+  "additionalProperties": true
+}

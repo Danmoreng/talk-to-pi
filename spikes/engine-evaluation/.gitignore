@@ -1,0 +1,16 @@
+third_party/
+models/source/*
+models/nemo-speech/*
+models/parakeet/*
+!models/**/.gitignore
+results/*
+!results/.gitignore
+reports/*
+!reports/.gitignore
+corpus/normalized/*
+!corpus/normalized/.gitignore
+corpus/references/*
+!corpus/references/.gitignore
+build/
+__pycache__/
+*.pyc

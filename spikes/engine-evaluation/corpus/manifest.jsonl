@@ -1,0 +1,1 @@
+{"id":"librispeech-speech-001","audio":"normalized/speech.wav","reference":"references/librispeech-speech-001.txt","language":"en-US","category":"english_general","speaker":"public-librispeech","durationMs":7435,"expectedTerms":["Phoebe"],"notes":"Existing parakeet.cpp LibriSpeech fixture; smoke-harness only, not the German decision corpus."}

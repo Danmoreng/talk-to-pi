@@ -1,0 +1,45 @@
+schemaVersion: 1
+snapshot: 2026-08-06
+model:
+  repo: nvidia/nemotron-3.5-asr-streaming-0.6b
+  revision: 1c8deaecc64b91f034d73e08dd8b64625eb3395d
+  nemoFile: nemotron-3.5-asr-streaming-0.6b.nemo
+  nemoSha256: 210214ed94039bf6bfbb9a047c7fa289628db75b103e2bf6381fa78285436a74
+  nemoSizeBytes: 2368284501
+  nvidiaQ8File: nemotron-3.5-asr-streaming-0.6b.q8_0.gguf
+  nvidiaQ8Sha256: a5c435f294eea8f88ce68dd27b8c3bfea7f777cb2fbba04fcd30eaa555f429ae
+  nvidiaQ8SizeBytes: 741548352
+  parakeetQ8File: nemotron-3.5-asr-streaming-0.6b.parakeet.q8_0.gguf
+  parakeetQ8Sha256: 5957dabedbef4a5eb01a1dc6204f41bb135b41aa614998d70bff7002764d39c3
+  parakeetQ8SizeBytes: 983696480
+  license: OpenMDW-1.1
+nemoSpeechCpp:
+  repository: https://github.com/NVIDIA/NeMo-Speech.cpp
+  revision: 2e12e2def8a98ed06666f7ee3ca94e7193e04be4
+  ggmlRevision: c03b4e2bcece5134827881af90242086daf75be5
+parakeetCpp:
+  repository: https://github.com/mudler/parakeet.cpp
+  revision: 5fd500fad54ef86254d675c494cbb3a5eb821df4
+  upstreamBaseRevision: 1bfbebfaaf493866f49597cd3b7901959d395c60
+  ggmlRevision: e705c5fed490514458bdd2eaddc43bd098fcce9b
+  patch: streaming language-tag filtering
+conversion:
+  python: Python 3.10.19
+  torch: 2.7.1+cpu
+  nemo: 3.1.0+6c57e73
+  nemoRevision: 6c57e73e83de967eed4d334c493ac313b9afd147
+  command: >-
+    python native/vendor/parakeet.cpp/scripts/convert_parakeet_to_gguf.py
+    --model nvidia/nemotron-3.5-asr-streaming-0.6b --dtype q8_0
+    --output nemotron-3.5-asr-streaming-0.6b.parakeet.q8_0.gguf
+host:
+  os: Arch Linux
+  kernel: 7.1.5-arch1-2
+  cpu: "AMD Ryzen 9 9955HX3D 16-Core Processor"
+  physicalCores: 16
+  logicalCores: 32
+  ramBytes: 66638741504
+toolchain:
+  compiler: "c++ (GCC) 16.1.1 20260728"
+  cmake: "cmake version 4.4.2"
+  ninja: "1.13.2"
