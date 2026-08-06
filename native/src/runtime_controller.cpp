@@ -182,6 +182,7 @@ void RuntimeController::stop(const Command& command, bool cancelled) {
 
 void RuntimeController::worker_loop(std::string session_id) {
     std::vector<float> block(1600);
+    bool overflow_reported = false;
     while (capture_.running() || ring_.available() > 0) {
         const auto count = ring_.pop(block.data(), block.size());
         if (count == 0) {
@@ -196,9 +197,16 @@ void RuntimeController::worker_loop(std::string session_id) {
             return;
         }
         emit_feed(result, session_id);
-        if (ring_.dropped_samples() > 0) {
-            emit_error("AUDIO_BUFFER_OVERFLOW", "Audio frames were dropped because inference fell behind.", true,
-                       std::nullopt, session_id);
+        if (!overflow_reported && ring_.dropped_samples() > 0) {
+            overflow_reported = true;
+            emit({
+                {"v", kProtocolVersion},
+                {"type", "warning"},
+                {"sessionId", session_id},
+                {"code", "AUDIO_BUFFER_OVERFLOW"},
+                {"message", "Audio frames were dropped because inference fell behind."},
+                {"recoverable", true},
+            });
         }
     }
 }

@@ -19,8 +19,10 @@ The production model is NVIDIA's official Nemotron Q8_0 GGUF:
 
 Talk-to-Pi stores this file in the pinned Hugging Face snapshot path. If it is
 missing, the first `/talk` asks for permission before downloading it. The
-native runtime is built from the pinned NeMo-Speech.cpp source and consumes the
-official NVIDIA GGUF directly; no model conversion is needed.
+native runtime is built from public NVIDIA NeMo-Speech.cpp revision
+`2e12e2def8a98ed06666f7ee3ca94e7193e04be4`. The build applies the tracked
+CMake-only embedding patch under `native/patches/` and consumes the official
+NVIDIA GGUF directly; no model conversion is needed.
 
 For local development:
 

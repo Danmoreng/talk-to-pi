@@ -23,6 +23,14 @@ set(GGML_CUDA ${TALK_TO_PI_ENABLE_CUDA} CACHE BOOL "" FORCE)
 
 find_program(BASH_EXECUTABLE bash REQUIRED)
 execute_process(
+  COMMAND "${BASH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/apply-nemo-embed-patch.sh"
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  RESULT_VARIABLE NEMO_EMBED_PATCH_RESULT
+)
+if(NEMO_EMBED_PATCH_RESULT)
+  message(FATAL_ERROR "NeMo-Speech.cpp embedding patch failed: ${NEMO_EMBED_PATCH_RESULT}")
+endif()
+execute_process(
   COMMAND "${BASH_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/NeMo-Speech.cpp/scripts/apply-ggml-patches.sh"
   WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/vendor/NeMo-Speech.cpp"
   RESULT_VARIABLE NEMO_PATCH_RESULT

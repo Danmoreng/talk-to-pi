@@ -50,8 +50,9 @@ export function localeFromEnvironment(
 
 export function configuredLanguage(
 	env: NodeJS.ProcessEnv = process.env,
+	fallback: LanguageSetting = "auto",
 ): LanguageSetting {
-	return env.TALK_TO_PI_LANGUAGE?.trim() || "auto";
+	return env.TALK_TO_PI_LANGUAGE?.trim() || fallback;
 }
 
 export function resolveLanguage(

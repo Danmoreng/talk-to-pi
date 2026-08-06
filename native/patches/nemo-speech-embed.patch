@@ -1,0 +1,38 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 692cc1e..25d786d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -100,3 +100,4 @@ option(GGML_VULKAN                   "Enable ggml Vulkan backend"            OFF
+ option(GGML_METAL                    "Enable ggml Metal backend (Apple Silicon only)" OFF)
+-set(NEMO_SPEECH_DEPENDENCY_PREFIX "${CMAKE_SOURCE_DIR}/.deps" CACHE PATH
++# Modified by Talk-to-Pi: keep dependency paths relative to embedded NeMo.
++set(NEMO_SPEECH_DEPENDENCY_PREFIX "${PROJECT_SOURCE_DIR}/.deps" CACHE PATH
+     "User-writable prefix containing optional project-built dependencies")
+@@ -211,3 +212,4 @@ if(GGML_CUDA)
+     set(GGML_CUDA_GRAPHS ON CACHE BOOL "Enable ggml-cuda CUDA Graphs")
+-    file(READ "${CMAKE_SOURCE_DIR}/ggml/src/ggml-cuda/conv-transpose-1d.cu" GGML_CUDA_CONV_TRANSPOSE_1D)
++    # Modified by Talk-to-Pi: resolve ggml inside the embedded NeMo project.
++    file(READ "${PROJECT_SOURCE_DIR}/ggml/src/ggml-cuda/conv-transpose-1d.cu" GGML_CUDA_CONV_TRANSPOSE_1D)
+     if(NOT GGML_CUDA_CONV_TRANSPOSE_1D MATCHES "conv_transpose_1d_use_nanocodec_grouped2")
+diff --git a/src/asr/CMakeLists.txt b/src/asr/CMakeLists.txt
+index 20f0630..6eb4806 100644
+--- a/src/asr/CMakeLists.txt
++++ b/src/asr/CMakeLists.txt
+@@ -147,3 +147,4 @@ target_link_libraries(nemo_speech_asr_c PRIVATE nemo_speech_asr)
+ target_include_directories(nemo_speech_asr_c PUBLIC
+-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
++    # Modified by Talk-to-Pi: expose headers from the embedded NeMo project.
++    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+diff --git a/src/runtime/ggml/CMakeLists.txt b/src/runtime/ggml/CMakeLists.txt
+index db767d9..b3f7006 100644
+--- a/src/runtime/ggml/CMakeLists.txt
++++ b/src/runtime/ggml/CMakeLists.txt
+@@ -22,4 +22,5 @@ target_include_directories(nemo_speech_runtime_ggml PUBLIC
+     ${CMAKE_CURRENT_SOURCE_DIR}
+-    ${CMAKE_SOURCE_DIR}/ggml/include
+-    ${CMAKE_SOURCE_DIR}/ggml/src
++    # Modified by Talk-to-Pi: resolve ggml inside the embedded NeMo project.
++    ${PROJECT_SOURCE_DIR}/ggml/include
++    ${PROJECT_SOURCE_DIR}/ggml/src
+ )

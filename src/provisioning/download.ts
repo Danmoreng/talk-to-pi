@@ -43,6 +43,7 @@ export async function downloadVerified(
 ): Promise<void> {
 	await mkdirFor(asset.destination);
 	const partial = `${asset.destination}.partial`;
+	onProgress?.({ receivedBytes: 0, totalBytes: asset.sizeBytes });
 	const response = await fetch(asset.url, signal ? { signal } : {});
 	if (!response.ok || !response.body)
 		throw new Error(`Download failed (${response.status}): ${asset.url}`);
@@ -61,12 +62,7 @@ export async function downloadVerified(
 				throw new Error("Downloaded asset exceeded its manifest size.");
 			digest.update(chunk);
 			await file.write(chunk);
-			onProgress?.({
-				receivedBytes,
-				...(response.headers.get("content-length")
-					? { totalBytes: Number(response.headers.get("content-length")) }
-					: {}),
-			});
+			onProgress?.({ receivedBytes, totalBytes: asset.sizeBytes });
 		}
 		await file.sync();
 		const actualDigest = digest.digest("hex");

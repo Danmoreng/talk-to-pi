@@ -54,6 +54,9 @@ export class RuntimeUnavailableError extends Error {
 
 export class RuntimeManager implements TalkRuntime {
 	private process: RuntimeProcess | undefined;
+	private startPromise: Promise<void> | undefined;
+	private restartPromise: Promise<void> | undefined;
+	private restartError = "";
 	private modelProvisioned = false;
 	private readonly listeners = new Map<string, Array<() => void>>();
 
@@ -103,16 +106,21 @@ export class RuntimeManager implements TalkRuntime {
 
 	async ensureReady(signal?: AbortSignal): Promise<void> {
 		await this.ensureProvisioned(undefined, signal);
+		await this.restartPromise;
 		if (signal?.aborted)
 			throw new DOMException("The operation was aborted.", "AbortError");
-		if (!this.process || !this.process.isAlive) {
-			this.process = new RuntimeProcess({
-				runtimePath: this.paths.runtimePath,
-				modelPath: this.paths.modelPath,
-				protocolVersion: 1,
+		if (this.process?.isAlive) return;
+		if (!this.startPromise) {
+			this.startPromise = (async () => {
+				const process = this.createProcess();
+				await process.start();
+				this.process = process;
+				this.restartError = "";
+			})().finally(() => {
+				this.startPromise = undefined;
 			});
-			await this.process.start();
 		}
+		await this.startPromise;
 	}
 
 	async startRecording(options: RecordingOptions): Promise<void> {
@@ -124,6 +132,11 @@ export class RuntimeManager implements TalkRuntime {
 			if (message.sessionId !== options.sessionId && message.type !== "error")
 				return;
 			options.onEvent(message);
+			if (message.type === "error") {
+				cleanup();
+				this.restartInBackground(process);
+				return;
+			}
 			if (["recording_finalized", "recording_cancelled"].includes(message.type))
 				cleanup();
 		});
@@ -137,6 +150,7 @@ export class RuntimeManager implements TalkRuntime {
 				recoverable: true,
 			});
 			cleanup();
+			this.restartInBackground(process);
 		});
 		this.listeners.set(options.sessionId, [offMessage, offFailure]);
 		try {
@@ -172,15 +186,47 @@ export class RuntimeManager implements TalkRuntime {
 			runtimeInstalled,
 			modelInstalled,
 			processAlive: this.process?.isAlive ?? false,
-			stderr: this.process?.stderr ?? "",
+			stderr: this.process?.stderr || this.restartError,
 		};
 	}
 
 	async shutdown(): Promise<void> {
 		for (const sessionId of this.listeners.keys())
 			this.cleanupSession(sessionId);
-		await this.process?.shutdown();
+		await this.restartPromise;
+		await this.startPromise;
+		const process = this.process;
 		this.process = undefined;
+		await process?.shutdown();
+	}
+
+	private createProcess(): RuntimeProcess {
+		const process = new RuntimeProcess({
+			runtimePath: this.paths.runtimePath,
+			modelPath: this.paths.modelPath,
+			protocolVersion: 1,
+		});
+		process.onFailure(() => this.restartInBackground(process));
+		return process;
+	}
+
+	private restartInBackground(failedProcess: RuntimeProcess): void {
+		if (this.process !== failedProcess || this.restartPromise) return;
+		this.process = undefined;
+		this.restartError = "";
+		this.restartPromise = (async () => {
+			await failedProcess.shutdown();
+			const replacement = this.createProcess();
+			await replacement.start();
+			this.process = replacement;
+		})()
+			.catch((error: unknown) => {
+				this.restartError =
+					error instanceof Error ? error.message : String(error);
+			})
+			.finally(() => {
+				this.restartPromise = undefined;
+			});
 	}
 
 	private cleanupSession(sessionId: string): void {

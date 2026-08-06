@@ -18,6 +18,6 @@ talk-to-pi-runtime
   └─ Nemotron streaming session
 ```
 
-The extension does not use Node FFI. The native child process owns the microphone and model, and no network listener is opened. The final transcript is trimmed, appended to any text already in Pi's prompt editor, and handed back with `ctx.ui.setEditorText()`. Talk-to-Pi never calls `pi.sendUserMessage()`.
+The extension does not use Node FFI. The native child process owns the microphone and model, and no network listener is opened. The final transcript is trimmed, appended to any text already in Pi's prompt editor, and handed back with `ctx.ui.setEditorText()`. Talk-to-Pi never calls `pi.sendUserMessage()`. A terminal recording or protocol error retires the child and starts a fresh runtime in the background; subsequent recordings wait for that restart instead of reusing stale native state.
 
 Native dependencies are pinned Git submodules. The runtime uses the NeMo-Speech.cpp C API ABI reported in its `hello` message and nlohmann/json for protocol parsing/serialization. The official NVIDIA Q8_0 model is resolved from the pinned Hugging Face snapshot cache; it is downloaded only after explicit user confirmation.

@@ -1,10 +1,3 @@
-DEVELOPMENT_PLAN.md
-docs/talk-to-pi-engine-evaluation-plan.md
-spikes/engine-evaluation/third_party/
-spikes/engine-evaluation/build/
-spikes/engine-evaluation/build-cuda/
-spikes/engine-evaluation/results/
-spikes/engine-evaluation/reports/
 native/vendor/
 native/build/
 native/build-cuda/

@@ -7,6 +7,7 @@ import {
 	truncateToWidth,
 	visibleWidth,
 } from "@earendil-works/pi-tui";
+import type { ProvisionProgress } from "../runtime/runtime-manager.js";
 import { statusText, type TalkStatus } from "./status-view.js";
 
 export type TalkOverlayResult =
@@ -34,6 +35,8 @@ export class TalkOverlay extends Container implements Component {
 	private language = "auto";
 	private speechEvent: "eou" | "eob" | undefined;
 	private warning: string | undefined;
+	private progress: ProvisionProgress | undefined;
+	private renderedProgressPercent: number | undefined;
 	private actionInFlight = false;
 
 	constructor(options: TalkOverlayOptions) {
@@ -54,6 +57,25 @@ export class TalkOverlay extends Container implements Component {
 
 	setLanguage(language: string): void {
 		this.language = language;
+		this.rebuild();
+		this.tui.requestRender();
+	}
+
+	setProgress(progress: ProvisionProgress): void {
+		this.progress = progress;
+		const percent = progress.totalBytes
+			? Math.min(
+					100,
+					Math.floor((progress.receivedBytes / progress.totalBytes) * 100),
+				)
+			: undefined;
+		if (
+			percent !== undefined &&
+			percent === this.renderedProgressPercent &&
+			progress.receivedBytes !== progress.totalBytes
+		)
+			return;
+		this.renderedProgressPercent = percent;
 		this.rebuild();
 		this.tui.requestRender();
 	}
@@ -86,11 +108,20 @@ export class TalkOverlay extends Container implements Component {
 		this.tui.requestRender();
 	}
 
+	warn(message: string): void {
+		this.warning = message;
+		this.rebuild();
+		this.tui.requestRender();
+	}
+
 	finish(text: string, warning?: string): void {
 		if (this.actionInFlight) return;
 		this.actionInFlight = true;
+		const finalWarning = warning ?? this.warning;
 		this.done(
-			warning ? { kind: "handoff", text, warning } : { kind: "handoff", text },
+			finalWarning
+				? { kind: "handoff", text, warning: finalWarning }
+				: { kind: "handoff", text },
 		);
 	}
 
@@ -140,19 +171,27 @@ export class TalkOverlay extends Container implements Component {
 		this.addChild(
 			new Text(this.theme.fg("accent", this.theme.bold("🎙 Talk-to-Pi")), 1, 0),
 		);
+		const placeholder =
+			this.phase === "provisioning"
+				? "Preparing local speech assets…"
+				: this.phase === "starting_runtime"
+					? "Loading speech model…"
+					: "Speak now…";
 		this.addChild(
-			new Text(this.text || this.theme.fg("dim", "Speak now…"), 1, 0),
+			new Text(this.text || this.theme.fg("dim", placeholder), 1, 0),
 		);
+		if (this.phase === "provisioning" && this.progress)
+			this.addChild(new Text(this.renderProgress(this.progress), 1, 0));
 
 		const status =
 			this.phase === "error"
 				? this.warning || "Transcription failed"
-				: statusText(this.phase, this.speechEvent);
+				: this.warning || statusText(this.phase, this.speechEvent);
 		const language = this.phase === "recording" ? ` · ${this.language}` : "";
 		this.addChild(
 			new Text(
 				this.theme.fg(
-					this.phase === "error" ? "error" : "muted",
+					this.phase === "error" ? "error" : this.warning ? "warning" : "muted",
 					`${status}${language}`,
 				),
 				1,
@@ -168,4 +207,23 @@ export class TalkOverlay extends Container implements Component {
 					: "Esc discard";
 		this.addChild(new Text(this.theme.fg("dim", hint), 1, 0));
 	}
+
+	private renderProgress(progress: ProvisionProgress): string {
+		const width = 20;
+		const total = progress.totalBytes;
+		const ratio = total ? Math.min(1, progress.receivedBytes / total) : 0;
+		const filled = Math.round(ratio * width);
+		const bar = `${"█".repeat(filled)}${"░".repeat(width - filled)}`;
+		const asset = progress.asset === "model" ? "Model" : "Runtime";
+		const percent = total ? ` ${Math.floor(ratio * 100)}%` : "";
+		const bytes = total
+			? `${formatBytes(progress.receivedBytes)} / ${formatBytes(total)}`
+			: formatBytes(progress.receivedBytes);
+		return this.theme.fg("accent", `${asset} [${bar}]${percent} · ${bytes}`);
+	}
+}
+
+function formatBytes(bytes: number): string {
+	if (bytes < 1024 * 1024) return `${Math.floor(bytes / 1024)} KiB`;
+	return `${(bytes / (1024 * 1024)).toFixed(1)} MiB`;
 }

@@ -25,6 +25,7 @@ describe("language resolution", () => {
 
 	it("defaults to auto and supports a user override", () => {
 		expect(configuredLanguage({})).toBe("auto");
+		expect(configuredLanguage({}, "de-DE")).toBe("de-DE");
 		expect(configuredLanguage({ TALK_TO_PI_LANGUAGE: "de-DE" })).toBe("de-DE");
 		expect(resolveLanguage()).toBe("auto");
 	});

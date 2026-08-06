@@ -3,6 +3,8 @@ import type {
 	ExtensionAPI,
 	ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
+import type { TalkConfig } from "../config/config.js";
+import type { BackgroundProvisioner } from "../provisioning/background-provisioner.js";
 import {
 	configuredLanguage,
 	resolveLanguage,
@@ -45,6 +47,8 @@ export function appendTranscript(
 export function registerTalkCommand(
 	pi: Pick<ExtensionAPI, "registerCommand" | "registerShortcut">,
 	runtime: TalkRuntime,
+	backgroundProvisioner: BackgroundProvisioner,
+	config: TalkConfig,
 ): void {
 	const handler = async (
 		args: string,
@@ -54,6 +58,14 @@ export function registerTalkCommand(
 			ctx.ui.notify("/talk requires interactive TUI mode.", "error");
 			return;
 		}
+		if (backgroundProvisioner.isRunning) {
+			backgroundProvisioner.showCurrentProgress(ctx);
+			ctx.ui.notify(
+				"Talk-to-Pi is still downloading in the background.",
+				"info",
+			);
+			return;
+		}
 		// The recording overlay is independent of agent execution. The finalized
 		// transcript is handed back to Pi's regular editor, where pressing Enter
 		// uses Pi's normal queueing behavior while the agent is busy.
@@ -61,7 +73,9 @@ export function registerTalkCommand(
 
 		let languageSetting: LanguageSetting;
 		try {
-			languageSetting = parseLanguage(args);
+			languageSetting = args.trim()
+				? parseLanguage(args)
+				: configuredLanguage(process.env, config.language);
 		} catch (error) {
 			ctx.ui.notify(
 				error instanceof Error ? error.message : String(error),
@@ -90,6 +104,10 @@ export function registerTalkCommand(
 				ctx.ui.notify("Talk-to-Pi model download cancelled.", "info");
 				return;
 			}
+		}
+		if (!diagnostics.modelInstalled || !diagnostics.runtimeInstalled) {
+			backgroundProvisioner.start(ctx);
+			return;
 		}
 
 		const sessionId = randomUUID();
@@ -191,6 +209,10 @@ export function registerTalkCommand(
 						overlay?.finish(message.text);
 						return;
 					}
+					if (message.type === "warning") {
+						overlay?.warn(messageText(message));
+						return;
+					}
 					if (message.type === "error") {
 						const text = partialText(overlay);
 						if (text.trim()) overlay?.finish(text, messageText(message));
@@ -201,7 +223,10 @@ export function registerTalkCommand(
 				void (async () => {
 					try {
 						overlay?.setPhase("provisioning");
-						await runtime.ensureProvisioned(undefined, abortController.signal);
+						await runtime.ensureProvisioned(
+							(progress) => overlay?.setProgress(progress),
+							abortController.signal,
+						);
 						overlay?.setPhase("starting_runtime");
 						await runtime.ensureReady(abortController.signal);
 						await runtime.startRecording({
@@ -256,10 +281,12 @@ export function registerTalkCommand(
 			"Transcribe into Pi's prompt editor, including while the agent is working",
 		handler,
 	});
-	pi.registerShortcut("ctrl+r", {
-		description: "Start Talk-to-Pi recording",
-		handler: (ctx) => handler("", ctx),
-	});
+	if (config.shortcut) {
+		pi.registerShortcut(config.shortcut, {
+			description: "Start Talk-to-Pi recording",
+			handler: (ctx) => handler("", ctx),
+		});
+	}
 }
 
 function partialText(overlay: TalkOverlay | undefined): string {

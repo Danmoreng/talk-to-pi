@@ -4,6 +4,14 @@
   "description": "Local, live Nemotron dictation for the Pi coding agent",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Danmoreng/talk-to-pi.git"
+  },
+  "homepage": "https://github.com/Danmoreng/talk-to-pi#readme",
+  "bugs": {
+    "url": "https://github.com/Danmoreng/talk-to-pi/issues"
+  },
   "engines": {
     "node": ">=22.19.0"
   },
@@ -36,11 +44,11 @@
   },
   "pi": {
     "extensions": [
-      "./dist/index.js"
+      "./src/index.ts"
     ]
   },
   "files": [
-    "dist",
+    "src",
     "manifests",
     "licenses",
     "README.md",
@@ -54,8 +62,7 @@
     "asr",
     "voice-input",
     "nemotron",
-    "parakeet",
-    "local-ai",
-    "pi-package"
+    "nemo-speech",
+    "local-ai"
   ]
 }

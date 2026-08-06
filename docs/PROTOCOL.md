@@ -26,7 +26,7 @@ The extension communicates with `talk-to-pi-runtime` through UTF-8 JSON Lines. C
 {"v":1,"type":"shutdown","id":"req-5"}
 ```
 
-`start` consumes 16 kHz mono float PCM from the default microphone. `language` is an explicit locale or `auto`. Talk-to-Pi defaults to `auto`; users can set `TALK_TO_PI_LANGUAGE` or override one recording with `/talk --lang <locale>`. In the interactive TUI, `Ctrl+R` invokes the same recording flow as `/talk`.
+`start` consumes 16 kHz mono float PCM from the default microphone. `language` is an explicit locale or `auto`. Talk-to-Pi defaults to `auto`; users can persist a default with `/talk-config` or override one recording with `/talk --lang <locale>`. In the interactive TUI, `Alt+R` invokes the same recording flow as `/talk` by default.
 
 ## Events and responses
 
@@ -44,9 +44,9 @@ The extension communicates with `talk-to-pi-runtime` through UTF-8 JSON Lines. C
 {"v":1,"type":"shutdown_complete","seq":10}
 ```
 
-A session emits exactly one terminal event: `recording_finalized`, `recording_cancelled`, or a fatal error. NeMo interim hypotheses are cumulative and may be revised, so `transcript_update.text` replaces the current visible transcript. The legacy `transcript_delta.text` event remains append-only for compatible runtimes.
+A session emits exactly one terminal event: `recording_finalized`, `recording_cancelled`, or a fatal error. NeMo interim hypotheses are cumulative and may be revised, so `transcript_update.text` replaces the current visible transcript. The legacy `transcript_delta.text` event remains append-only for compatible runtimes. Recoverable recording-quality conditions use `type: "warning"` and do not end the session.
 
-Errors use this shape:
+Warnings and errors use this shape (with `type` set accordingly):
 
 ```json
 {

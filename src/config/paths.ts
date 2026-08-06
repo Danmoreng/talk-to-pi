@@ -7,6 +7,7 @@ export const RUNTIME_VERSION = "0.1.0";
 
 export interface TalkPaths {
 	configDir: string;
+	configPath: string;
 	dataDir: string;
 	cacheDir: string;
 	modelPath: string;
@@ -45,6 +46,7 @@ export function getTalkPaths(env: NodeJS.ProcessEnv = process.env): TalkPaths {
 
 	return {
 		configDir,
+		configPath: join(configDir, "config.json"),
 		dataDir,
 		cacheDir,
 		modelPath: env.TALK_TO_PI_MODEL_PATH || huggingFaceModelPath(env),

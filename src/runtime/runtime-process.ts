@@ -17,6 +17,9 @@ export interface RuntimeProcessOptions {
 	protocolVersion: 1;
 	threads?: number;
 	startupTimeoutMs?: number;
+	expectedEngine?: string;
+	minimumEngineAbi?: number;
+	maximumEngineAbi?: number;
 	env?: NodeJS.ProcessEnv;
 }
 
@@ -37,6 +40,7 @@ export class RuntimeProcess {
 	private readonly failureHandlers = new Set<RuntimeFailureHandler>();
 	private sequence = 0;
 	private stderrBuffer = "";
+	private recentMessages: RuntimeMessage[] = [];
 	private starting: Promise<void> | undefined;
 
 	constructor(private readonly options: RuntimeProcessOptions) {}
@@ -67,9 +71,14 @@ export class RuntimeProcess {
 		if (this.isAlive) return;
 		if (this.starting) return this.starting;
 
-		this.starting = this.startInternal().finally(() => {
-			this.starting = undefined;
-		});
+		this.starting = this.startInternal()
+			.catch(async (error: unknown) => {
+				await this.shutdown();
+				throw error;
+			})
+			.finally(() => {
+				this.starting = undefined;
+			});
 		return this.starting;
 	}
 
@@ -77,6 +86,7 @@ export class RuntimeProcess {
 		this.decoder = new JsonlDecoder();
 		this.sequence = 0;
 		this.stderrBuffer = "";
+		this.recentMessages = [];
 		this.child = spawn(
 			this.options.runtimePath,
 			[
@@ -110,11 +120,12 @@ export class RuntimeProcess {
 			this.fail(new Error(`Talk-to-Pi runtime exited with ${detail}.`));
 		});
 
-		await this.waitForMessage(
+		const hello = await this.waitForMessage(
 			(message) => message.type === "hello",
 			this.options.startupTimeoutMs ?? 10_000,
 			"Runtime did not send hello.",
 		);
+		this.validateHello(hello);
 		await this.waitForMessage(
 			(message) => message.type === "ready",
 			this.options.startupTimeoutMs ?? 30_000,
@@ -178,6 +189,8 @@ export class RuntimeProcess {
 	}
 
 	private handleMessage(message: RuntimeMessage): void {
+		this.recentMessages.push(message);
+		if (this.recentMessages.length > 32) this.recentMessages.shift();
 		if (typeof message.seq === "number") {
 			if (message.seq <= this.sequence)
 				this.fail(
@@ -220,6 +233,8 @@ export class RuntimeProcess {
 		timeoutMs: number,
 		timeoutMessage: string,
 	): Promise<RuntimeMessage> {
+		const existing = this.recentMessages.find(predicate);
+		if (existing) return existing;
 		return new Promise((resolve, reject) => {
 			const timer = setTimeout(() => {
 				cleanup();
@@ -240,6 +255,36 @@ export class RuntimeProcess {
 				onFailure();
 			};
 		});
+	}
+
+	private validateHello(message: RuntimeMessage): void {
+		const engine = this.options.expectedEngine ?? "nemo-speech.cpp";
+		if (message.engine !== engine)
+			throw new ProtocolError(
+				"ENGINE_MISMATCH",
+				`Expected runtime engine ${engine}, received ${String(message.engine)}.`,
+			);
+		if (
+			!Array.isArray(message.protocolVersions) ||
+			!message.protocolVersions.includes(this.options.protocolVersion)
+		)
+			throw new ProtocolError(
+				"PROTOCOL_MISMATCH",
+				"Runtime hello does not advertise the requested protocol version.",
+			);
+		const abi = message.nemoAbi;
+		const minimum = this.options.minimumEngineAbi ?? 1;
+		const maximum = this.options.maximumEngineAbi ?? 1;
+		if (
+			typeof abi !== "number" ||
+			!Number.isSafeInteger(abi) ||
+			abi < minimum ||
+			abi > maximum
+		)
+			throw new ProtocolError(
+				"ENGINE_ABI_MISMATCH",
+				`Unsupported NeMo-Speech.cpp ABI: ${String(abi)} (supported ${minimum}-${maximum}).`,
+			);
 	}
 
 	private async waitForExit(

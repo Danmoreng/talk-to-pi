@@ -51,4 +51,29 @@ describe("recording overlay", () => {
 		overlay.finish(" Hallo ");
 		expect(done).toHaveBeenCalledWith({ kind: "handoff", text: " Hallo " });
 	});
+
+	it("renders model download progress", () => {
+		const { overlay } = createOverlay();
+		overlay.setPhase("provisioning");
+		overlay.setProgress({
+			asset: "model",
+			receivedBytes: 50 * 1024 * 1024,
+			totalBytes: 100 * 1024 * 1024,
+		});
+		const rendered = overlay.render(72).join("\n");
+		expect(rendered).toContain("Model [██████████░░░░░░░░░░] 50%");
+		expect(rendered).toContain("50.0 MiB / 100.0 MiB");
+	});
+
+	it("keeps a recoverable warning for editor handoff", () => {
+		const { overlay, done } = createOverlay();
+		overlay.setPhase("recording");
+		overlay.warn("Audio frames were dropped.");
+		overlay.finish("Partial text");
+		expect(done).toHaveBeenCalledWith({
+			kind: "handoff",
+			text: "Partial text",
+			warning: "Audio frames were dropped.",
+		});
+	});
 });
