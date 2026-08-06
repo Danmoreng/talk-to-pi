@@ -1,7 +1,7 @@
 import type { Theme } from "@earendil-works/pi-coding-agent";
 import { DynamicBorder } from "@earendil-works/pi-coding-agent";
 import type { Component, TUI } from "@earendil-works/pi-tui";
-import { Container, Spacer, Text, matchesKey } from "@earendil-works/pi-tui";
+import { Container, Text, matchesKey } from "@earendil-works/pi-tui";
 import { statusText, type TalkStatus } from "./status-view.js";
 
 export type TalkOverlayResult =
@@ -118,15 +118,12 @@ export class TalkOverlay extends Container implements Component {
 		this.addChild(
 			new DynamicBorder((value: string) => this.theme.fg("accent", value)),
 		);
-		this.addChild(new Spacer(1));
 		this.addChild(
-			new Text(this.theme.fg("accent", this.theme.bold("Talk-to-Pi")), 1, 0),
+			new Text(this.theme.fg("accent", this.theme.bold("🎙 Talk-to-Pi")), 1, 0),
 		);
-		this.addChild(new Spacer(1));
 		this.addChild(
 			new Text(this.text || this.theme.fg("dim", "Speak now…"), 1, 0),
 		);
-		this.addChild(new Spacer(1));
 
 		const status =
 			this.phase === "error"
@@ -143,16 +140,14 @@ export class TalkOverlay extends Container implements Component {
 				0,
 			),
 		);
-		this.addChild(new Spacer(1));
 
 		const hint =
 			this.phase === "recording"
-				? "Enter stop   Esc discard"
+				? "Enter stop · Esc discard"
 				: this.phase === "finalizing"
-					? "Finalizing…   Esc discard"
+					? "Finalizing… · Esc discard"
 					: "Esc discard";
 		this.addChild(new Text(this.theme.fg("dim", hint), 1, 0));
-		this.addChild(new Spacer(1));
 		this.addChild(
 			new DynamicBorder((value: string) => this.theme.fg("accent", value)),
 		);
