@@ -54,13 +54,9 @@ export function registerTalkCommand(
 			ctx.ui.notify("/talk requires interactive TUI mode.", "error");
 			return;
 		}
-		if (!ctx.isIdle()) {
-			ctx.ui.notify(
-				"Talk-to-Pi is available when the agent is idle.",
-				"warning",
-			);
-			return;
-		}
+		// The recording overlay is independent of agent execution. The finalized
+		// transcript is handed back to Pi's regular editor, where pressing Enter
+		// uses Pi's normal queueing behavior while the agent is busy.
 		const existingEditorText = ctx.ui.getEditorText();
 
 		let languageSetting: LanguageSetting;
@@ -238,7 +234,7 @@ export function registerTalkCommand(
 
 	pi.registerCommand("talk", {
 		description:
-			"Transcribe a local microphone recording into Pi's prompt editor",
+			"Transcribe into Pi's prompt editor, including while the agent is working",
 		handler,
 	});
 	pi.registerShortcut("ctrl+r", {
