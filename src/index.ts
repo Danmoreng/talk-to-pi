@@ -8,6 +8,18 @@ export default function (pi: ExtensionAPI): void {
 	registerTalkCommand(pi, runtime);
 	registerDoctorCommand(pi, runtime);
 
+	pi.on("session_start", async () => {
+		// Warm the native process before the user invokes /talk. Do not trigger a
+		// model download here; first-use consent remains in /talk.
+		const diagnostics = await runtime.getDiagnostics();
+		if (!diagnostics.runtimeInstalled || !diagnostics.modelInstalled) return;
+		try {
+			await runtime.ensureReady();
+		} catch {
+			// /talk retries and presents the actionable provisioning error.
+		}
+	});
+
 	pi.on("session_shutdown", async () => {
 		await runtime.shutdown();
 	});

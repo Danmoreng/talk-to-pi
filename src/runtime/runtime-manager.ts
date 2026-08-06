@@ -54,6 +54,7 @@ export class RuntimeUnavailableError extends Error {
 
 export class RuntimeManager implements TalkRuntime {
 	private process: RuntimeProcess | undefined;
+	private modelProvisioned = false;
 	private readonly listeners = new Map<string, Array<() => void>>();
 
 	private readonly provisioner: Provisioner;
@@ -69,8 +70,10 @@ export class RuntimeManager implements TalkRuntime {
 		if (signal?.aborted)
 			throw new DOMException("The operation was aborted.", "AbortError");
 		if (await this.hasExplicitLocalAssets()) return;
+		if (this.modelProvisioned) return;
 		if (this.hasRuntimeOnlyOverride()) {
 			await this.provisioner.ensureModel(onProgress, signal);
+			this.modelProvisioned = true;
 			return;
 		}
 		try {
@@ -95,6 +98,7 @@ export class RuntimeManager implements TalkRuntime {
 				"Talk-to-Pi provisioning completed without installing all required assets.",
 			);
 		}
+		this.modelProvisioned = true;
 	}
 
 	async ensureReady(signal?: AbortSignal): Promise<void> {
