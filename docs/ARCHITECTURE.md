@@ -18,6 +18,6 @@ talk-to-pi-runtime
   └─ Nemotron streaming session
 ```
 
-The extension does not use Node FFI. The native child process owns the microphone and model, and no network listener is opened. The final transcript is trimmed and handed to Pi's existing prompt editor with `ctx.ui.setEditorText()`. Talk-to-Pi never calls `pi.sendUserMessage()`.
+The extension does not use Node FFI. The native child process owns the microphone and model, and no network listener is opened. The final transcript is trimmed, appended to any text already in Pi's prompt editor, and handed back with `ctx.ui.setEditorText()`. Talk-to-Pi never calls `pi.sendUserMessage()`.
 
 Native dependencies are pinned Git submodules. The runtime uses the parakeet C API ABI reported in its `hello` message and nlohmann/json for protocol parsing/serialization.

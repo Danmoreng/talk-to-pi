@@ -30,6 +30,18 @@ function messageSessionId(message: RuntimeMessage): string | undefined {
 	return typeof message.sessionId === "string" ? message.sessionId : undefined;
 }
 
+export function appendTranscript(
+	existingText: string,
+	transcript: string,
+): string {
+	const trimmedTranscript = transcript.trim();
+	if (!trimmedTranscript) return existingText;
+	if (!existingText.trim()) return trimmedTranscript;
+	return /\s$/u.test(existingText)
+		? `${existingText}${trimmedTranscript}`
+		: `${existingText} ${trimmedTranscript}`;
+}
+
 export function registerTalkCommand(
 	pi: Pick<ExtensionAPI, "registerCommand" | "registerShortcut">,
 	runtime: TalkRuntime,
@@ -49,13 +61,7 @@ export function registerTalkCommand(
 			);
 			return;
 		}
-		if (ctx.ui.getEditorText().trim()) {
-			ctx.ui.notify(
-				"The prompt editor already contains text; submit or clear it before using /talk.",
-				"warning",
-			);
-			return;
-		}
+		const existingEditorText = ctx.ui.getEditorText();
 
 		let languageSetting: LanguageSetting;
 		try {
@@ -226,7 +232,7 @@ export function registerTalkCommand(
 			ctx.ui.notify("The recording did not produce any text.", "info");
 			return;
 		}
-		ctx.ui.setEditorText(text);
+		ctx.ui.setEditorText(appendTranscript(existingEditorText, text));
 		if (result.warning) ctx.ui.notify(result.warning, "warning");
 	};
 

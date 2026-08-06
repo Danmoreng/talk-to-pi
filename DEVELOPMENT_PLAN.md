@@ -210,8 +210,9 @@ After finalization:
 
 1. the authoritative transcript is trimmed at its beginning and end;
 2. the overlay closes;
-3. the transcript is placed into Pi's regular prompt editor with `ctx.ui.setEditorText(text)`;
-4. focus returns to the normal Pi input box.
+3. the transcript is appended to the prompt editor's existing text with one separating space when needed;
+4. the combined text is handed to Pi's regular prompt editor with `ctx.ui.setEditorText(text)`;
+5. focus returns to the normal Pi input box.
 
 The user then edits and submits with the same editor, keybindings, multiline behavior, custom editor component, and terminal integration used for typed prompts. Talk-to-Pi does not call `pi.sendUserMessage()` and never submits the transcript itself. An empty or whitespace-only transcript closes with a short notification and is not inserted.
 
@@ -1500,9 +1501,10 @@ After successful finalization:
 2. apply `text.trim()` to remove leading and trailing whitespace only;
 3. if the result is empty, close the overlay and notify the user;
 4. otherwise close the overlay with the transcript as its result;
-5. call `ctx.ui.setEditorText(text)` after `ctx.ui.custom()` resolves;
-6. return focus to Pi's regular prompt editor;
-7. do not call `pi.sendUserMessage()` and do not retain transcript history.
+5. append the result to the editor text captured before recording, preserving existing text and adding one separating space when needed;
+6. call `ctx.ui.setEditorText(combinedText)` after `ctx.ui.custom()` resolves;
+7. return focus to Pi's regular prompt editor;
+8. do not call `pi.sendUserMessage()` and do not retain transcript history;
 
 If a recoverable error occurs after text has appeared, perform the same handoff with the accumulated text and show an “incomplete transcript” warning. If editor handoff itself throws, retain the text in memory for the duration of the command, show an error, and offer a copyable fallback rather than discarding it.
 
@@ -2466,7 +2468,7 @@ The MVP is complete only when all items below are true.
 | Large first-use download surprises users | Friction | Download on first `/talk`, show exact size and progress, never silently at install |
 | Partial download corruption | Broken setup | Hashing, temp files, atomic rename, locking |
 | Transcript appears in logs | Privacy failure | Redact protocol payloads; no transcript logging by default; privacy tests |
-| Transcript handoff overwrites unexpected prompt-editor content | Lost draft | Confirm the command flow leaves the editor empty; detect unexpected content before handoff and preserve it rather than overwriting silently |
+| Transcript handoff loses prompt-editor content | Lost draft | Capture existing editor text before recording and append the finalized transcript rather than overwriting it |
 | Pi API changes before release | Build/runtime breakage | Pin minimum/tested version; use public APIs only; CI against supported Pi versions |
 | Multiple Pi instances consume substantial RAM | Resource pressure | Document one runtime per Pi process; shared daemon explicitly deferred |
 | Existing voice extension reduces differentiation | Positioning risk | Lead with Nemotron/parakeet cache-aware streaming, stable deltas, and narrow managed runtime |
