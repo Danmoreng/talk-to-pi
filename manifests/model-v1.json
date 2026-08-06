@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "modelId": "nemotron-3.5-asr-streaming-0.6b-q4_k",
+  "engine": "parakeet.cpp",
+  "engineCompatibility": {
+    "minimumAbi": 6,
+    "maximumTestedAbi": 6
+  },
+  "source": {
+    "repository": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b",
+    "revision": "RELEASE_GATE_REQUIRED",
+    "filename": "nemotron-3.5-asr-streaming-0.6b-q4_k.gguf"
+  },
+  "url": "RELEASE_GATE_REQUIRED",
+  "sha256": "RELEASE_GATE_REQUIRED",
+  "sizeBytes": 0,
+  "license": "OpenMDW-1.1",
+  "attribution": "NVIDIA Nemotron 3.5 ASR"
+}

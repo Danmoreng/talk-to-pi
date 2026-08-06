@@ -1,0 +1,14 @@
+OpenMDW-1.1 model license notice
+
+The Nemotron model is governed by the OpenMDW-1.1 license. The authoritative
+license text is published at:
+
+https://openmdw.ai/license/1-1/
+
+Model card:
+https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b
+
+This placeholder notice is not a substitute for the exact license text. Before
+v0.1.0 publication, replace it with the exact release-appropriate license copy
+or a legally sufficient accompanying notice after reviewing the selected GGUF
+artifact and its host.

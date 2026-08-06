@@ -1,0 +1,5 @@
+DEVELOPMENT_PLAN.md
+native/vendor/
+node_modules/
+dist/
+coverage/

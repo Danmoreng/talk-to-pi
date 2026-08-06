@@ -1,0 +1,15 @@
+node_modules/
+dist/
+coverage/
+.vitest/
+
+build/
+native/build/
+
+*.log
+*.partial
+.DS_Store
+
+# Local developer overrides
+.env
+.talk-to-pi/

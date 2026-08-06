@@ -1,0 +1,55 @@
+{
+  "name": "talk-to-pi",
+  "version": "0.1.0",
+  "description": "Local, live Nemotron dictation for the Pi coding agent",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.84.0",
+    "@earendil-works/pi-tui": "0.84.0",
+    "@types/node": "^24.0.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "native:build": "node scripts/build-native.mjs",
+    "native:test": "ctest --test-dir native/build --output-on-failure",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "pi": {
+    "extensions": [
+      "./dist/index.js"
+    ]
+  },
+  "files": [
+    "dist",
+    "manifests",
+    "licenses",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "keywords": [
+    "pi-package",
+    "pi-coding-agent",
+    "speech-to-text",
+    "asr",
+    "voice-input",
+    "nemotron",
+    "parakeet",
+    "local-ai"
+  ]
+}

@@ -1,0 +1,9 @@
+[submodule "native/vendor/parakeet.cpp"]
+	path = native/vendor/parakeet.cpp
+	url = https://github.com/mudler/parakeet.cpp.git
+[submodule "native/vendor/miniaudio"]
+	path = native/vendor/miniaudio
+	url = https://github.com/mackron/miniaudio.git
+[submodule "native/vendor/nlohmann-json"]
+	path = native/vendor/nlohmann-json
+	url = https://github.com/nlohmann/json.git
