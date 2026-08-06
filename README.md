@@ -71,6 +71,20 @@ The `/talk-doctor` command reports the current asset and process state. Release
 provisioning remains gated until the generated model is published with a stable
 URL and checksum.
 
+### Install for normal Pi sessions
+
+Publishing to npm is not required for local use. After building the local
+runtime and model, install this repository as a global Pi package once:
+
+```bash
+npm run install:local:pi
+```
+
+The script runs `pi install` with the repository path and prints the two local
+runtime/model environment variables. Add those exports to your shell profile,
+then start Pi normally with `pi`; the extension will be loaded automatically in
+all sessions. Use `pi install -l "$PWD"` instead if it should be project-local.
+
 ## Scope
 
 The MVP uses one managed `parakeet.cpp` child process, miniaudio microphone capture, Nemotron 3.5 ASR Streaming 0.6B, and JSONL over stdin/stdout. It does not use a cloud speech API, a server, Python, an npm lifecycle script, telemetry, or automatic submission.
