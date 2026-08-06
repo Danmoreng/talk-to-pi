@@ -6,7 +6,10 @@
   "properties": {
     "schemaVersion": { "const": 1 },
     "runId": { "type": "string", "minLength": 1 },
-    "engine": { "type": "string", "enum": ["nemo", "parakeet", "nemo-speech-cpp", "parakeet-cpp"] },
+    "engine": {
+      "type": "string",
+      "enum": ["nemo", "parakeet", "nemo-speech-cpp", "parakeet-cpp"]
+    },
     "event": { "type": "string" },
     "emittedAtMs": { "type": "number", "minimum": 0 },
     "text": { "type": "string" },

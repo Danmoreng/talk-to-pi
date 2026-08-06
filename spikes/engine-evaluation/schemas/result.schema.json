@@ -2,7 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "talk-to-pi-engine-evaluation-result",
   "type": "object",
-  "required": ["schemaVersion", "runId", "engine", "model", "configuration", "metrics", "status"],
+  "required": [
+    "schemaVersion",
+    "runId",
+    "engine",
+    "model",
+    "configuration",
+    "metrics",
+    "status"
+  ],
   "properties": {
     "schemaVersion": { "const": 1 },
     "runId": { "type": "string" },

@@ -26,12 +26,12 @@ intervals.
 
 ## Current smoke observations
 
-| Metric | NeMo-Speech.cpp | parakeet.cpp |
-|---|---:|---:|
-| Q8 model size | 741,548,352 bytes | 983,696,480 bytes |
-| Real-time TTFH | approximately 1,008 ms | approximately 1,029 ms |
-| Real-time stop-to-final | approximately 69 ms | approximately 53 ms |
-| Smoke WER | 0.000 | 0.000 |
+| Metric                  |        NeMo-Speech.cpp |           parakeet.cpp |
+| ----------------------- | ---------------------: | ---------------------: |
+| Q8 model size           |      741,548,352 bytes |      983,696,480 bytes |
+| Real-time TTFH          | approximately 1,008 ms | approximately 1,029 ms |
+| Real-time stop-to-final |    approximately 69 ms |    approximately 53 ms |
+| Smoke WER               |                  0.000 |                  0.000 |
 
 These values are harness smoke observations, not release claims.
 
