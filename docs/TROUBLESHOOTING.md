@@ -4,6 +4,12 @@
 
 For local development, start Pi with `npm run local:pi`; it supplies the locally generated parakeet.cpp model and native runtime through explicit path overrides. Run `/talk-doctor` to inspect them. Release provisioning is not enabled until the model artifact has been published with a stable URL and checksum.
 
+## Sprache ändern
+
+Die Standardsprache ist `auto`. Für alle Aufnahmen kann beispielsweise
+`TALK_TO_PI_LANGUAGE=de-DE` gesetzt werden. Einzelne Aufnahmen überschreiben
+die Einstellung mit `/talk --lang en-US` oder `/talk --lang auto`.
+
 ## No microphone
 
 The runtime uses the system default capture device. Check the default input device and run `/talk-doctor`. Device selection is intentionally outside the MVP.

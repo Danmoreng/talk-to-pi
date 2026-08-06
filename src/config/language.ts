@@ -48,8 +48,14 @@ export function localeFromEnvironment(
 	return normalizeLocale(env.LC_ALL || env.LC_MESSAGES || env.LANG);
 }
 
+export function configuredLanguage(
+	env: NodeJS.ProcessEnv = process.env,
+): LanguageSetting {
+	return env.TALK_TO_PI_LANGUAGE?.trim() || "auto";
+}
+
 export function resolveLanguage(
-	setting: LanguageSetting = "system",
+	setting: LanguageSetting = "auto",
 	env: NodeJS.ProcessEnv = process.env,
 ): "auto" | string {
 	if (setting === "auto") return "auto";

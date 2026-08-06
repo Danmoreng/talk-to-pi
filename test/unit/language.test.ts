@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	configuredLanguage,
 	localeFromEnvironment,
 	normalizeLocale,
 	resolveLanguage,
@@ -20,6 +21,12 @@ describe("language resolution", () => {
 		).toBe("de-DE");
 		expect(resolveLanguage("system", { LANG: "de_DE.UTF-8" })).toBe("de-DE");
 		expect(resolveLanguage("system", { LANG: "C" })).toBe("auto");
+	});
+
+	it("defaults to auto and supports a user override", () => {
+		expect(configuredLanguage({})).toBe("auto");
+		expect(configuredLanguage({ TALK_TO_PI_LANGUAGE: "de-DE" })).toBe("de-DE");
+		expect(resolveLanguage()).toBe("auto");
 	});
 
 	it("supports explicit auto and locales", () => {

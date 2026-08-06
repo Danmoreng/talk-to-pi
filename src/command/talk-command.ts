@@ -1,13 +1,17 @@
 import { randomUUID } from "node:crypto";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { resolveLanguage, type LanguageSetting } from "../config/language.js";
+import {
+	configuredLanguage,
+	resolveLanguage,
+	type LanguageSetting,
+} from "../config/language.js";
 import { type RuntimeMessage } from "../runtime/protocol.js";
 import { type TalkRuntime } from "../runtime/runtime-manager.js";
 import { TalkOverlay, type TalkOverlayResult } from "../ui/talk-overlay.js";
 
 function parseLanguage(args: string): LanguageSetting {
 	const trimmed = args.trim();
-	if (!trimmed) return "system";
+	if (!trimmed) return configuredLanguage();
 	const match = /^(?:--lang(?:=|\s+))([^\s]+)$/.exec(trimmed);
 	if (!match?.[1]) throw new Error("Usage: /talk [--lang de-DE|auto]");
 	return match[1];
