@@ -2,7 +2,7 @@
 
 ## `/talk` says the runtime is not provisioned
 
-This is expected during development. Run `/talk-doctor` to inspect the managed runtime and model paths. Release provisioning is not enabled until the model artifact has passed the compatibility and licensing gate.
+For local development, start Pi with `npm run local:pi`; it supplies the locally generated parakeet.cpp model and native runtime through explicit path overrides. Run `/talk-doctor` to inspect them. Release provisioning is not enabled until the model artifact has been published with a stable URL and checksum.
 
 ## No microphone
 

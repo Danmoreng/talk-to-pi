@@ -45,6 +45,8 @@ private:
     Writer writer_;
     std::atomic<bool> should_exit_{false};
     std::uint64_t sequence_ = 0;
+    std::mutex output_mutex_;
+    std::string transcript_;
     State state_ = State::Loading;
     std::string session_id_;
     std::string startup_error_;

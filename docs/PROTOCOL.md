@@ -33,7 +33,7 @@ The extension communicates with `talk-to-pi-runtime` through UTF-8 JSON Lines. C
 ```json
 {"v":1,"type":"hello","seq":1,"runtimeVersion":"0.1.0","protocolVersions":[1],"parakeetAbi":6,"platform":"linux-x64-cpu"}
 {"v":1,"type":"loading_model","seq":2}
-{"v":1,"type":"ready","seq":3,"model":"nemotron-3.5-asr-streaming-0.6b-q4_k","modelLoadMs":4321}
+{"v":1,"type":"ready","seq":3,"model":"nemotron-3.5-asr-streaming-0.6b-q8_0","modelLoadMs":4321}
 {"v":1,"type":"pong","id":"req-1","seq":4}
 {"v":1,"type":"command_ack","id":"req-2","seq":5,"command":"start","sessionId":"session-1"}
 {"v":1,"type":"recording_started","seq":6,"sessionId":"session-1","language":"de-DE","audioDevice":"Default"}

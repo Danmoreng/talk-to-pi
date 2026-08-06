@@ -36,7 +36,7 @@ bool RuntimeController::load_model() {
     emit({
         {"v", kProtocolVersion},
         {"type", "ready"},
-        {"model", "nemotron-3.5-asr-streaming-0.6b-q4_k"},
+        {"model", "nemotron-3.5-asr-streaming-0.6b-q8_0"},
     });
     return true;
 }
@@ -79,6 +79,7 @@ void RuntimeController::shutdown() {
 }
 
 void RuntimeController::emit(nlohmann::json message) {
+    std::lock_guard<std::mutex> lock(output_mutex_);
     message["seq"] = ++sequence_;
     writer_(message);
 }
@@ -86,7 +87,7 @@ void RuntimeController::emit(nlohmann::json message) {
 void RuntimeController::emit_error(const std::string& code, const std::string& message, bool recoverable,
                                     const std::optional<std::string>& id,
                                     const std::optional<std::string>& session_id) {
-    emit(JsonlProtocol::error(sequence_ + 1, code, message, recoverable, id, session_id));
+    emit(JsonlProtocol::error(0, code, message, recoverable, id, session_id));
 }
 
 void RuntimeController::acknowledge(const Command& command) {
@@ -116,6 +117,7 @@ void RuntimeController::start(const Command& command) {
         return;
     }
     ring_.clear();
+    transcript_.clear();
     session_id_ = *command.session_id;
     acknowledge(command);
     if (!capture_.start(error)) {
@@ -146,7 +148,7 @@ void RuntimeController::stop(const Command& command, bool cancelled) {
             emit_error("INVALID_STATE", "stop/cancel does not match the active recording", true, command.id, command.session_id);
             return;
         }
-        state_ = cancelled ? State::Finalizing : State::Finalizing;
+        state_ = State::Finalizing;
         capture_.stop();
     }
     acknowledge(command);
@@ -165,7 +167,7 @@ void RuntimeController::stop(const Command& command, bool cancelled) {
                 {"v", kProtocolVersion},
                 {"type", "recording_finalized"},
                 {"sessionId", *command.session_id},
-                {"text", result.text},
+                {"text", transcript_},
             });
         }
     }
@@ -201,6 +203,7 @@ void RuntimeController::worker_loop(std::string session_id) {
 
 void RuntimeController::emit_feed(const FeedResult& result, const std::string& session_id) {
     if (!result.text.empty()) {
+        transcript_ += result.text;
         emit({
             {"v", kProtocolVersion},
             {"type", "transcript_delta"},

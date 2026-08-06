@@ -2,7 +2,7 @@
 
 Local, live Nemotron dictation for the Pi Coding Agent.
 
-> **Development status:** Talk-to-Pi is currently under active development. The native runtime and model provisioning are not yet released.
+> **Development status:** The local Linux x86_64 development path is usable. Release provisioning is still gated because the parakeet.cpp GGUF has not yet been published as a project release asset.
 
 The planned user flow is:
 
@@ -36,13 +36,23 @@ git submodule update --init --recursive
 node scripts/build-native.mjs
 ```
 
-Load the extension during development with Pi:
+Build and run the local development path with Pi:
 
 ```bash
-pi -e ./dist/index.js
+npm run build
+npm run native:build
+npm run local:pi
 ```
 
-The `/talk-doctor` command reports the current asset and process state. `/talk` intentionally refuses to start until the pinned runtime and model have been provisioned.
+`scripts/local-pi.sh` uses the locally generated parakeet.cpp GGUF at
+`$XDG_DATA_HOME/talk-to-pi/models/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf`
+and the native binary in `native/build`. Override either path with
+`TALK_TO_PI_MODEL_PATH` or `TALK_TO_PI_RUNTIME_PATH`. Then use `/talk`, press
+Enter to stop, and submit the resulting text through Pi normally.
+
+The `/talk-doctor` command reports the current asset and process state. Release
+provisioning remains gated until the generated model is published with a stable
+URL and checksum.
 
 ## Scope
 

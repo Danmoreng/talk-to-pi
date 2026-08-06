@@ -68,6 +68,7 @@ export class RuntimeManager implements TalkRuntime {
 	): Promise<void> {
 		if (signal?.aborted)
 			throw new DOMException("The operation was aborted.", "AbortError");
+		if (await this.hasExplicitLocalAssets()) return;
 		try {
 			await this.provisioner.ensure(
 				onProgress
@@ -182,6 +183,27 @@ export class RuntimeManager implements TalkRuntime {
 	private requireProcess(): RuntimeProcess {
 		if (!this.process) throw new Error("Talk-to-Pi runtime is not ready.");
 		return this.process;
+	}
+
+	private async hasExplicitLocalAssets(): Promise<boolean> {
+		const runtimeOverride = process.env.TALK_TO_PI_RUNTIME_PATH;
+		const modelOverride = process.env.TALK_TO_PI_MODEL_PATH;
+		if (!runtimeOverride && !modelOverride) return false;
+		if (!runtimeOverride || !modelOverride) {
+			throw new RuntimeUnavailableError(
+				"TALK_TO_PI_RUNTIME_PATH and TALK_TO_PI_MODEL_PATH must be set together.",
+			);
+		}
+		const [runtimeInstalled, modelInstalled] = await Promise.all([
+			this.isExecutable(runtimeOverride),
+			this.isRegularFile(modelOverride),
+		]);
+		if (!runtimeInstalled || !modelInstalled) {
+			throw new RuntimeUnavailableError(
+				"The configured local Talk-to-Pi runtime or model does not exist.",
+			);
+		}
+		return true;
 	}
 
 	private async isExecutable(path: string): Promise<boolean> {

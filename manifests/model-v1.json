@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "modelId": "nemotron-3.5-asr-streaming-0.6b-q4_k",
+  "modelId": "nemotron-3.5-asr-streaming-0.6b-q8_0",
   "engine": "parakeet.cpp",
   "engineCompatibility": {
     "minimumAbi": 6,
@@ -9,9 +9,9 @@
   "source": {
     "repository": "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b",
     "revision": "RELEASE_GATE_REQUIRED",
-    "filename": "nemotron-3.5-asr-streaming-0.6b-q4_k.gguf"
+    "filename": "nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf"
   },
-  "url": "https://example.invalid/nemotron-3.5-asr-streaming-0.6b-q4_k.gguf",
+  "url": "https://example.invalid/release-gate/nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf",
   "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "sizeBytes": 1,
   "license": "OpenMDW-1.1",

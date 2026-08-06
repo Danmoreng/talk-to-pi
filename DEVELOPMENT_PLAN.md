@@ -16,7 +16,7 @@
 
 **ASR engine:** `parakeet.cpp`
 
-**ASR model:** NVIDIA Nemotron 3.5 ASR Streaming 0.6B, stock-compatible Q4_K GGUF
+**ASR model:** NVIDIA Nemotron 3.5 ASR Streaming 0.6B, locally generated stock-compatible Q8_0 GGUF
 **Scope:** Local streaming speech-to-text only; no LLM cleanup, no cloud backend, no server configuration
 
 ---
@@ -156,7 +156,7 @@ The package must not rely on `postinstall` or any npm lifecycle script. Pi packa
 4. A focused setup overlay appears.
 5. The extension downloads:
    - the platform-specific `talk-to-pi-runtime` release asset;
-   - the pinned Nemotron Q4_K model artifact;
+   - the pinned Nemotron Q8_0 model artifact;
    - required license and attribution files if they are not already shipped in the npm package.
 6. The extension verifies exact file sizes and SHA-256 hashes.
 7. Files are atomically installed into the managed data directory.
@@ -251,7 +251,7 @@ In `rpc`, `json`, or `print` mode, `/talk` must fail cleanly with a short messag
 | Native JSON | `nlohmann/json`, vendored and pinned |
 | ASR engine | `parakeet.cpp`, vendored and pinned |
 | Model | Nemotron 3.5 ASR Streaming 0.6B |
-| Quantization | Stock-compatible Q4_K GGUF |
+| Quantization | Stock-compatible Q8_0 GGUF |
 | Initial target | Linux x86_64, CPU |
 | IPC | JSON Lines over child-process stdin/stdout |
 | Network after setup | None |
@@ -402,7 +402,7 @@ For unsupported or unknown system locales, use `auto` and strip only a validated
                                │ local file mapping/read
                                ▼
 ┌───────────────────────────────────────────────────────────────┐
-│ Nemotron 3.5 ASR Streaming 0.6B Q4_K GGUF                     │
+│ Nemotron 3.5 ASR Streaming 0.6B Q8_0 GGUF                     │
 │ managed local model file                                      │
 └───────────────────────────────────────────────────────────────┘
 ```
@@ -616,7 +616,7 @@ $XDG_CONFIG_HOME/talk-to-pi/
 
 $XDG_DATA_HOME/talk-to-pi/
 ├── models/
-│   └── nemotron-3.5-asr-streaming-0.6b-q4_k.gguf
+│   └── nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf
 ├── licenses/
 └── state.json
 
@@ -998,7 +998,7 @@ The sequence values below illustrate one possible successful flow. Terminal-even
   "v": 1,
   "type": "ready",
   "seq": 3,
-  "model": "nemotron-3.5-asr-streaming-0.6b-q4_k",
+  "model": "nemotron-3.5-asr-streaming-0.6b-q8_0",
   "modelLoadMs": 4321
 }
 ```
@@ -1305,7 +1305,7 @@ Example:
 ```json
 {
   "schemaVersion": 1,
-  "modelId": "nemotron-3.5-asr-streaming-0.6b-q4_k",
+  "modelId": "nemotron-3.5-asr-streaming-0.6b-q8_0",
   "engine": "parakeet.cpp",
   "engineCompatibility": {
     "minimumAbi": 6,
@@ -1314,7 +1314,7 @@ Example:
   "source": {
     "repository": "<pinned Hugging Face repository>",
     "revision": "<commit SHA>",
-    "filename": "nemotron-3.5-asr-streaming-0.6b-q4_k.gguf"
+    "filename": "nemotron-3.5-asr-streaming-0.6b-q8_0-parakeet.gguf"
   },
   "url": "<immutable resolved URL>",
   "sha256": "<hex>",
@@ -1335,7 +1335,7 @@ Before `v0.1.0`:
 1. choose a GGUF generated for stock `parakeet.cpp`;
 2. confirm the exact upstream source checkpoint;
 3. confirm the converter and parakeet.cpp commit;
-4. validate the Q4_K file with German and English fixtures;
+4. validate the Q8_0 file with German and English fixtures;
 5. verify its license and attribution metadata;
 6. pin the hosting repository revision;
 7. compute SHA-256 independently;
@@ -1987,7 +1987,7 @@ Initial targets on Reference A:
 
 Treat these as engineering targets, not public guarantees until repeatable measurements exist.
 
-For Q4_K, run a small acceptance corpus focused on coding dictation:
+For Q8_0, run a small acceptance corpus focused on coding dictation:
 
 - file paths;
 - CLI flags;
@@ -2112,7 +2112,7 @@ Tasks:
 - `/talk` opens a test overlay;
 - a hard-coded overlay result is placed in Pi's regular prompt editor without being submitted;
 - the native prototype emits stable deltas from a German fixture;
-- the selected stock-compatible Q4_K artifact is pinned by hash;
+- the selected stock-compatible Q8_0 artifact is pinned by hash;
 - licensing notes are complete enough to proceed.
 
 Do not begin full UI work before this milestone passes.
@@ -2334,7 +2334,7 @@ Create the following initial issues and link them to milestones.
 - `spike: verify setEditorText preserves configured editor behavior without submitting`
 - `spike: pin parakeet.cpp ABI and build integration`
 - `spike: pin nlohmann/json and verify native protocol integration`
-- `spike: select and license-audit stock Nemotron Q4_K GGUF`
+- `spike: select and license-audit stock Nemotron Q8_0 GGUF`
 - `spike: verify German cache-aware streaming fixture`
 
 ### Native runtime
@@ -2451,7 +2451,7 @@ The MVP is complete only when all items below are true.
 
 | Risk | Impact | Mitigation |
 |---|---|---|
-| Q4_K model artifact is incompatible with pinned parakeet.cpp | Release blocker | Select artifact in Milestone 0; run real streaming fixtures; pin hashes and converter provenance |
+| Q8_0 model artifact is incompatible with pinned parakeet.cpp | Release blocker | Validate the generated artifact with real streaming fixtures; pin hashes and converter provenance |
 | Model derivative licensing is ambiguous | Release blocker | Perform artifact-specific license audit; preserve OpenMDW and origin notices; do not publish until resolved |
 | CPU cannot maintain real time on older hardware | Poor UX | Benchmark early; publish minimum recommendations; optimize threads/chunk handling; avoid claiming universal performance |
 | Stable deltas arrive less frequently than expected | UI feels laggy | Measure on target model; keep status/audio indicator responsive; do not fake unstable partials |
