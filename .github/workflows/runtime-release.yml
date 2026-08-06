@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.19.0
+          node-version: 24
       - id: version
         env:
           INPUT_VERSION: ${{ inputs.runtimeVersion }}
@@ -63,7 +63,7 @@ jobs:
           submodules: recursive
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.19.0
+          node-version: 24
           cache: npm
       - run: npm ci --ignore-scripts
       - name: Build release runtime
@@ -85,7 +85,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22.19.0
+          node-version: 24
       - uses: actions/download-artifact@v5
         with:
           pattern: runtime-*

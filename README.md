@@ -20,7 +20,7 @@ Talk-to-Pi records your microphone locally, shows the live transcript, and place
 ## Requirements
 
 - Linux x86_64
-- Node.js `>=22.19.0`
+- Node.js `>=24.0.0`
 - Pi coding agent
 - Git with submodule support
 - CMake `>=3.26`
