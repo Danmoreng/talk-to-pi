@@ -11,9 +11,9 @@
     "revision": "RELEASE_GATE_REQUIRED",
     "filename": "nemotron-3.5-asr-streaming-0.6b-q4_k.gguf"
   },
-  "url": "RELEASE_GATE_REQUIRED",
-  "sha256": "RELEASE_GATE_REQUIRED",
-  "sizeBytes": 0,
+  "url": "https://example.invalid/nemotron-3.5-asr-streaming-0.6b-q4_k.gguf",
+  "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "sizeBytes": 1,
   "license": "OpenMDW-1.1",
   "attribution": "NVIDIA Nemotron 3.5 ASR"
 }

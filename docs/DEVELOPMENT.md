@@ -8,6 +8,7 @@ The project currently implements the Milestone 0/1 foundation:
 - read-only recording overlay;
 - regular prompt-editor handoff;
 - native C++ runtime skeleton with parakeet.cpp and miniaudio integration;
-- native JSONL protocol test.
+- native JSONL protocol test;
+- generic manifest validation, verified downloads, locking, and safe runtime archive extraction.
 
-The model artifact and managed provisioning are intentionally not guessed. They remain release gates in the development plan until a compatible, licensed GGUF is validated with fixtures.
+The model artifact is intentionally not guessed. They remain release gates in the development plan until a compatible, licensed GGUF is validated with fixtures.

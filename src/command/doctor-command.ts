@@ -1,5 +1,5 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { getTalkPaths } from "../config/paths.js";
+import { getTalkPaths, PACKAGE_VERSION } from "../config/paths.js";
 import { type TalkRuntime } from "../runtime/runtime-manager.js";
 
 export function registerDoctorCommand(
@@ -12,7 +12,7 @@ export function registerDoctorCommand(
 			const diagnostics = await runtime.getDiagnostics();
 			const paths = getTalkPaths();
 			const lines = [
-				`Talk-to-Pi ${paths.runtimePath.endsWith("talk-to-pi-runtime") ? "0.1.0" : "unknown"}`,
+				`Talk-to-Pi ${PACKAGE_VERSION}`,
 				`Pi mode: ${ctx.mode}`,
 				`Platform: ${process.platform}-${process.arch}`,
 				`Node: ${process.version}`,

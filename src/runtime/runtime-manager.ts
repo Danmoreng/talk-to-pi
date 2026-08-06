@@ -2,6 +2,10 @@ import { access, stat } from "node:fs/promises";
 import { constants } from "node:fs";
 import { randomUUID } from "node:crypto";
 import { getTalkPaths, type TalkPaths } from "../config/paths.js";
+import {
+	Provisioner,
+	type ProvisionerProgress,
+} from "../provisioning/provisioner.js";
 import { type RuntimeMessage } from "./protocol.js";
 import { RuntimeProcess } from "./runtime-process.js";
 
@@ -52,21 +56,38 @@ export class RuntimeManager implements TalkRuntime {
 	private process: RuntimeProcess | undefined;
 	private readonly listeners = new Map<string, Array<() => void>>();
 
-	constructor(private readonly paths: TalkPaths = getTalkPaths()) {}
+	private readonly provisioner: Provisioner;
+
+	constructor(private readonly paths: TalkPaths = getTalkPaths()) {
+		this.provisioner = new Provisioner(paths);
+	}
 
 	async ensureProvisioned(
-		_onProgress?: (progress: ProvisionProgress) => void,
+		onProgress?: (progress: ProvisionProgress) => void,
 		signal?: AbortSignal,
 	): Promise<void> {
 		if (signal?.aborted)
 			throw new DOMException("The operation was aborted.", "AbortError");
+		try {
+			await this.provisioner.ensure(
+				onProgress
+					? (progress: ProvisionerProgress) => onProgress(progress)
+					: undefined,
+				signal,
+			);
+		} catch (error) {
+			if (error instanceof RuntimeUnavailableError) throw error;
+			throw new RuntimeUnavailableError(
+				error instanceof Error ? error.message : String(error),
+			);
+		}
 		const [runtimeInstalled, modelInstalled] = await Promise.all([
 			this.isExecutable(this.paths.runtimePath),
 			this.isRegularFile(this.paths.modelPath),
 		]);
 		if (!runtimeInstalled || !modelInstalled) {
 			throw new RuntimeUnavailableError(
-				"Talk-to-Pi is not provisioned yet. Runtime/model provisioning will be added before the first release.",
+				"Talk-to-Pi provisioning completed without installing all required assets.",
 			);
 		}
 	}
