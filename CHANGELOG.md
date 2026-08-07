@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1 - 2026-08-07
+
+- Fixed the Windows runtime crash while loading the GGUF model by using one shared dynamic MSVC runtime across the native DLL boundary.
+- Added a Windows release smoke test that downloads the pinned model, verifies its checksum, loads it in the packaged runtime, waits for readiness, and shuts it down cleanly.
+
 ## 0.1.0 - 2026-08-07
 
 - Initialized the TypeScript extension and native runtime skeleton.

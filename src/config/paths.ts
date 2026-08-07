@@ -3,8 +3,8 @@ import { dirname, join, resolve } from "node:path";
 import { huggingFaceModelPath } from "./model.js";
 import { runtimeExecutableName } from "./platform.js";
 
-export const PACKAGE_VERSION = "0.1.0";
-export const RUNTIME_VERSION = "0.1.0";
+export const PACKAGE_VERSION = "0.1.1";
+export const RUNTIME_VERSION = "0.1.1";
 
 export interface TalkPaths {
 	configDir: string;

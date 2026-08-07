@@ -93,6 +93,17 @@ jobs:
         run: node scripts/build-native.mjs --release --build-dir native/build-release
       - name: Package and smoke-test release runtime
         run: node scripts/package-runtime.mjs --build-dir native/build-release --output-dir artifacts
+      - name: Download model for Windows startup test
+        if: matrix.platform == 'win32-x64-cpu'
+        shell: pwsh
+        run: |
+          $model = Join-Path $env:RUNNER_TEMP "nemotron-3.5-asr-streaming-0.6b.q8_0.gguf"
+          curl.exe --fail --location --retry 3 --output $model "https://huggingface.co/nvidia/nemotron-3.5-asr-streaming-0.6b/resolve/1c8deaecc64b91f034d73e08dd8b64625eb3395d/nemotron-3.5-asr-streaming-0.6b.q8_0.gguf?download=true"
+          node scripts/verify-release-assets.mjs $model 741548352 a5c435f294eea8f88ce68dd27b8c3bfea7f777cb2fbba04fcd30eaa555f429ae
+          "SMOKE_MODEL_PATH=$model" >> $env:GITHUB_ENV
+      - name: Load model in packaged Windows runtime
+        if: matrix.platform == 'win32-x64-cpu'
+        run: node scripts/smoke-runtime-startup.mjs --runtime native/build-release/package-root/talk-to-pi-runtime.exe --model "$env:SMOKE_MODEL_PATH"
       - uses: actions/upload-artifact@v7
         with:
           name: runtime-${{ matrix.platform }}

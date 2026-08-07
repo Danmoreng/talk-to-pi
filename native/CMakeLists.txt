@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(talk_to_pi_runtime VERSION 0.1.0 LANGUAGES C CXX)
+project(talk_to_pi_runtime VERSION 0.1.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -23,7 +23,11 @@ set(GGML_AVX512_VBMI OFF CACHE BOOL "" FORCE)
 set(GGML_AVX512_VNNI OFF CACHE BOOL "" FORCE)
 set(GGML_AVX512_BF16 OFF CACHE BOOL "" FORCE)
 if(MSVC)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  # The native runtime spans several DLLs. They exchange CRT-owned handles
+  # (notably FILE* values returned by ggml_fopen), so every module must use the
+  # same dynamic MSVC runtime. /MT gives each DLL a private CRT instance and
+  # makes the receiving DLL terminate with FAST_FAIL_INVALID_ARG on Windows.
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
 set(NEMO_SPEECH_BUILD_ASR ON CACHE BOOL "" FORCE)
