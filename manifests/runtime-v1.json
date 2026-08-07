@@ -2,5 +2,41 @@
   "schemaVersion": 1,
   "runtimeVersion": "0.1.0",
   "protocolVersion": 1,
-  "artifacts": {}
+  "artifacts": {
+    "darwin-arm64-cpu": {
+      "url": "https://github.com/Danmoreng/talk-to-pi/releases/download/runtime-v0.1.0/talk-to-pi-runtime-0.1.0-darwin-arm64-cpu.tar.gz",
+      "sha256": "e552a2c4471c4facc2385bcb7ab9b0f185a8c4783ec1e7acf9755736723b19e5",
+      "sizeBytes": 2783585,
+      "archiveType": "tar.gz",
+      "executable": "talk-to-pi-runtime"
+    },
+    "darwin-x64-cpu": {
+      "url": "https://github.com/Danmoreng/talk-to-pi/releases/download/runtime-v0.1.0/talk-to-pi-runtime-0.1.0-darwin-x64-cpu.tar.gz",
+      "sha256": "0c33fe509366c4b35c095bba39450f4a5feee6e921e92d94ffa8329c591a9b66",
+      "sizeBytes": 3113873,
+      "archiveType": "tar.gz",
+      "executable": "talk-to-pi-runtime"
+    },
+    "linux-arm64-cpu": {
+      "url": "https://github.com/Danmoreng/talk-to-pi/releases/download/runtime-v0.1.0/talk-to-pi-runtime-0.1.0-linux-arm64-cpu.tar.gz",
+      "sha256": "fb0bfa938f17d77cffb95e30beda5d8b7f39d80af6ebce393dc09fe2c2fe37ee",
+      "sizeBytes": 3240278,
+      "archiveType": "tar.gz",
+      "executable": "talk-to-pi-runtime"
+    },
+    "linux-x64-cpu": {
+      "url": "https://github.com/Danmoreng/talk-to-pi/releases/download/runtime-v0.1.0/talk-to-pi-runtime-0.1.0-linux-x64-cpu.tar.gz",
+      "sha256": "af3b8af288d2755a91ba8bb160639d5710c34767be90c9b138c226c0cb1bdd35",
+      "sizeBytes": 3460977,
+      "archiveType": "tar.gz",
+      "executable": "talk-to-pi-runtime"
+    },
+    "win32-x64-cpu": {
+      "url": "https://github.com/Danmoreng/talk-to-pi/releases/download/runtime-v0.1.0/talk-to-pi-runtime-0.1.0-win32-x64-cpu.tar.gz",
+      "sha256": "700a871b28732ed9b6e6eaad730196f38b5d9d94700f200bb23e21f0134f8488",
+      "sizeBytes": 1950410,
+      "archiveType": "tar.gz",
+      "executable": "talk-to-pi-runtime.exe"
+    }
+  }
 }
