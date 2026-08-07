@@ -30,7 +30,3 @@ jobs:
         run: npm install --global npm@11
       - name: Publish with npm provenance
         run: npm publish --access public --provenance
-        env:
-          # Needed only for the first publication. Later releases use npm
-          # Trusted Publishing through this workflow's OIDC identity.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
