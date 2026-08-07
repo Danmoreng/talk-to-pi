@@ -36,12 +36,17 @@ The npm package must never be published while its runtime manifest is empty or
 incomplete. The **npm release** workflow checks all five native targets before
 publishing.
 
-Prefer npm Trusted Publishing when WebAuthn is available. If npm requires a
-security key to configure package governance, create a short-lived granular
-token with package read/write access and bypass 2FA enabled, then store it as
-the GitHub Actions secret `NPM_TOKEN`. The workflow still publishes from a
-GitHub-hosted runner with npm provenance. Delete the secret and revoke the token
-immediately after publication.
+Configure npm Trusted Publishing before creating the final package tag:
+
+- provider: GitHub Actions
+- repository owner: `Danmoreng`
+- repository: `talk-to-pi`
+- workflow: `npm-release.yml`
+- environment: leave empty
+- allowed action: `npm publish`
+
+The workflow authenticates with GitHub OIDC and publishes with npm provenance;
+no npm token is stored in GitHub.
 
 To release, push the package commit and create the matching `vVERSION` tag. The
 workflow publishes npm and creates the corresponding GitHub source release. Do
