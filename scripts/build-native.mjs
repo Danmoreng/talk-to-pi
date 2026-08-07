@@ -27,7 +27,11 @@ const configureArguments = [
 	buildDir,
 	`-DTALK_TO_PI_BUILD_TESTS=${release ? "OFF" : "ON"}`,
 ];
-if (release) configureArguments.push("-DCMAKE_BUILD_TYPE=Release");
+if (release) {
+	configureArguments.push("-DCMAKE_BUILD_TYPE=Release");
+	if (process.platform === "darwin")
+		configureArguments.push("-DCMAKE_OSX_DEPLOYMENT_TARGET=13.0");
+}
 execFileSync("cmake", configureArguments, { stdio: "inherit" });
 
 const buildArguments = ["--build", buildDir, "--parallel"];
