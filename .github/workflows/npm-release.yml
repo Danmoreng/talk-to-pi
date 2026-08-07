@@ -6,7 +6,7 @@ on:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -30,3 +30,12 @@ jobs:
         run: npm install --global npm@11
       - name: Publish with npm provenance
         run: npm publish --access public --provenance
+      - name: Create GitHub source release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --title "Talk-to-Pi ${GITHUB_REF_NAME#v}" \
+            --generate-notes

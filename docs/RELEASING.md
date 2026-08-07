@@ -47,5 +47,6 @@ Configure npm Trusted Publishing before creating the final package tag:
 The workflow authenticates with GitHub OIDC and publishes with npm provenance;
 no npm token is stored in GitHub.
 
-To release, push the package commit and create the matching `vVERSION` tag. Do
+To release, push the package commit and create the matching `vVERSION` tag. The
+workflow publishes npm and creates the corresponding GitHub source release. Do
 not reuse or move release tags.
