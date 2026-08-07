@@ -1,0 +1,8 @@
+# Build-time patches and shell scripts must remain LF on Windows. Git Bash and
+# git apply otherwise see CRLF content while vendored submodules enforce LF.
+*.patch text eol=lf
+*.sh text eol=lf
+
+# Keep GitHub workflows stable across checkout platforms.
+*.yml text eol=lf
+*.yaml text eol=lf

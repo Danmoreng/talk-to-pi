@@ -10,6 +10,18 @@ on:
         description: "Runtime version from package.json (for example 0.1.0)"
         required: true
         type: string
+      target:
+        description: "Build all release targets or validate one target only"
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - linux-x64-cpu
+          - linux-arm64-cpu
+          - darwin-x64-cpu
+          - darwin-arm64-cpu
+          - win32-x64-cpu
 
 permissions:
   contents: read
@@ -19,9 +31,11 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ steps.version.outputs.tag }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+      publish: ${{ steps.matrix.outputs.publish }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       - id: version
@@ -39,29 +53,38 @@ jobs:
             exit 1
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - id: matrix
+        env:
+          INPUT_TARGET: ${{ inputs.target }}
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const targets = [
+            { platform: "linux-x64-cpu", runner: "ubuntu-24.04" },
+            { platform: "linux-arm64-cpu", runner: "ubuntu-24.04-arm" },
+            { platform: "darwin-x64-cpu", runner: "macos-13" },
+            { platform: "darwin-arm64-cpu", runner: "macos-14" },
+            { platform: "win32-x64-cpu", runner: "windows-2022" },
+          ];
+          const target = process.env.INPUT_TARGET || "all";
+          const include = target === "all"
+            ? targets
+            : targets.filter((candidate) => candidate.platform === target);
+          if (include.length === 0) throw new Error(`Unknown runtime target: ${target}`);
+          console.log(`matrix=${JSON.stringify({ include })}`);
+          console.log(`publish=${target === "all"}`);
+          NODE
 
   build:
     needs: prepare
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - platform: linux-x64-cpu
-            runner: ubuntu-24.04
-          - platform: linux-arm64-cpu
-            runner: ubuntu-24.04-arm
-          - platform: darwin-x64-cpu
-            runner: macos-13
-          - platform: darwin-arm64-cpu
-            runner: macos-14
-          - platform: win32-x64-cpu
-            runner: windows-2022
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -70,7 +93,7 @@ jobs:
         run: node scripts/build-native.mjs --release --build-dir native/build-release
       - name: Package and smoke-test release runtime
         run: node scripts/package-runtime.mjs --build-dir native/build-release --output-dir artifacts
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: runtime-${{ matrix.platform }}
           path: artifacts/*
@@ -78,15 +101,16 @@ jobs:
 
   release:
     needs: [prepare, build]
+    if: needs.prepare.outputs.publish == 'true'
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           pattern: runtime-*
           path: artifacts
