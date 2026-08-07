@@ -26,8 +26,8 @@
     "tar": "^7.4.3"
   },
   "devDependencies": {
-    "@earendil-works/pi-coding-agent": "0.84.0",
-    "@earendil-works/pi-tui": "0.84.0",
+    "@earendil-works/pi-coding-agent": "0.84.1",
+    "@earendil-works/pi-tui": "0.84.1",
     "@types/node": "^24.0.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
